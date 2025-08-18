@@ -5,16 +5,16 @@ import (
 )
 
 type User struct {
-	Id          int64     `gorm:"primaryKey;autoIncrement"`
-	Name        string    `gorm:"type:varchar(256);not null"`
-	Email       string    `gorm:"type:varchar(256);not null;unique"`
-	Password    string    `gorm:"type:varchar(256);not null" json:"-"`
-	CitizenId   string    `gorm:"type:varchar(256);not null"`
-	DateOfBirth time.Time `json:"date_of_birth"`
-	PhoneNumber string    `gorm:"type:varchar(256);not null"`
-	Address     string    `gorm:"type:varchar(256);not null"`
+	Id          int64 `gorm:"primaryKey;autoIncrement"`
+	Name        string
+	Email       string `gorm:"unique"`
+	Password    string `json:"-"`
+	CitizenId   string `gorm:"unique"`
+	DateOfBirth time.Time
+	PhoneNumber string `gorm:"unique"`
+	Address     string
 
-	Gender string `gorm:"type:gender_slug"`
+	Gender string `gorm:"type:gender_slug;default:'unknown'"`
 
 	RoleId    int64
 	CreatedAt time.Time

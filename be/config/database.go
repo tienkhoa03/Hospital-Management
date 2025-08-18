@@ -28,6 +28,7 @@ func ConnectToDB() *gorm.DB {
 			CREATE TYPE role_slug AS ENUM (
 				'manager', 
 				'doctor',
+				'nurse',
 				'patient',
 				'cashing_officer'
 			);
@@ -43,7 +44,8 @@ func ConnectToDB() *gorm.DB {
 		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'gender_slug') THEN
 			CREATE TYPE gender_slug AS ENUM (
 				'male', 
-				'female'
+				'female',
+				'unknown'
 			);
 		END IF;
 	END
@@ -124,7 +126,20 @@ func ConnectToDB() *gorm.DB {
 	`
 	db.Exec(createStaffEnumSQL)
 
-	err = db.AutoMigrate(&entity.Admin{}, &entity.Appointment{}, &entity.Bill{}, &entity.BillItem{}, &entity.Doctor{}, &entity.Manager{}, &entity.MedicalRecord{}, &entity.Medicine{}, &entity.Patient{}, &entity.Prescription{}, &entity.Role{}, &entity.Task{}, &entity.UserToken{}, &entity.User{})
+	createBloodEnumSQL := `
+	DO $$
+	BEGIN
+		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'blood_type_slug') THEN
+			CREATE TYPE blood_type_slug AS ENUM (
+				'A+',  'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'
+			);
+		END IF;
+	END
+	$$;
+	`
+	db.Exec(createBloodEnumSQL)
+
+	err = db.AutoMigrate(&entity.Admin{}, &entity.Appointment{}, &entity.Bill{}, &entity.BillItem{}, &entity.Doctor{}, &entity.Manager{}, &entity.MedicalRecord{}, &entity.Medicine{}, &entity.Nurse{}, &entity.Patient{}, &entity.Prescription{}, &entity.Role{}, &entity.Staff{}, &entity.Task{}, &entity.UserToken{}, &entity.User{})
 	if err != nil {
 		log.Fatal("Error migrate to database. Error:", err)
 	}
