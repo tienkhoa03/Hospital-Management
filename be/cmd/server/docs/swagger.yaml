@@ -1,0 +1,484 @@
+definitions:
+  dto.ApiResponseSuccessNoData:
+    properties:
+      success:
+        type: boolean
+    type: object
+  dto.ApiResponseSuccessStruct:
+    properties:
+      data:
+        example: "null"
+        type: string
+      message:
+        example: Success
+        type: string
+    type: object
+  dto.ApiResponseSuccessWithFriendsList:
+    properties:
+      count:
+        type: integer
+      friends:
+        items:
+          type: string
+        type: array
+      success:
+        type: boolean
+    type: object
+  dto.CreateBlockRequest:
+    properties:
+      requestor:
+        type: string
+      target:
+        type: string
+    required:
+    - requestor
+    - target
+    type: object
+  dto.CreateFriendshipRequest:
+    properties:
+      friends:
+        items:
+          type: string
+        type: array
+    required:
+    - friends
+    type: object
+  dto.CreateSubscriptionRequest:
+    properties:
+      requestor:
+        type: string
+      target:
+        type: string
+    required:
+    - requestor
+    - target
+    type: object
+  dto.GetUpdateRecipientsRequest:
+    properties:
+      sender:
+        type: string
+      text:
+        type: string
+    required:
+    - sender
+    - text
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.LogoutRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  dto.RefreshRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+info:
+  contact: {}
+  description: Friends Management API
+  title: Friends Management API
+  version: "1.0"
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: User's email and password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      summary: Login
+      tags:
+      - Auth
+  /api/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout
+      parameters:
+      - description: User's refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LogoutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      summary: Logout
+      tags:
+      - Auth
+  /api/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh Access Token
+      parameters:
+      - description: User's refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      summary: Refresh Access Token
+      tags:
+      - Auth
+  /api/auth/register:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Register new user
+      parameters:
+      - description: User Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: User Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      summary: Register new user
+      tags:
+      - Auth
+  /api/block:
+    post:
+      consumes:
+      - application/json
+      description: Create new block relationship
+      parameters:
+      - description: Requestor's email and target's email
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateBlockRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      security:
+      - JWT: []
+      summary: Create new block relationship
+      tags:
+      - BlockRelationship
+  /api/friendship:
+    post:
+      consumes:
+      - application/json
+      description: Create new friendship
+      parameters:
+      - description: List of 2 friend emails
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateFriendshipRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      security:
+      - JWT: []
+      summary: Create new friendship
+      tags:
+      - Friendship
+  /api/friendship/common-friends:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve common friends list between two email addresses
+      parameters:
+      - description: Email address of user 1
+        in: query
+        name: email1
+        required: true
+        type: string
+      - description: Email address of user 2
+        in: query
+        name: email2
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessWithFriendsList'
+      security:
+      - JWT: []
+      summary: Retrieve common friends list between two email addresses
+      tags:
+      - Friendship
+  /api/friendship/friends:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve friends list for an email address
+      parameters:
+      - description: Email address
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessWithFriendsList'
+      security:
+      - JWT: []
+      summary: Retrieve friends list for an email address
+      tags:
+      - Friendship
+  /api/subscription:
+    post:
+      consumes:
+      - application/json
+      description: Create new subscription
+      parameters:
+      - description: Requestor's email and target's email
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSubscriptionRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      security:
+      - JWT: []
+      summary: Create new subscription
+      tags:
+      - Subscription
+  /api/update-recipients:
+    post:
+      consumes:
+      - application/json
+      description: Get all email addresses that can receive updates from an email
+        address.
+      parameters:
+      - description: Sender email and update text
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GetUpdateRecipientsRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessNoData'
+      security:
+      - JWT: []
+      summary: Get update recipients
+      tags:
+      - Notification
+  /api/users:
+    get:
+      consumes:
+      - application/json
+      description: Get all user
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all user
+      tags:
+      - Users Management
+  /api/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Delete user
+      tags:
+      - Users Management
+    get:
+      consumes:
+      - application/json
+      description: Get user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get user by ID
+      tags:
+      - Users Management
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update user
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User's New Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: User's New Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Update user
+      tags:
+      - Users Management
+schemes:
+- http
+- https
+swagger: "2.0"
