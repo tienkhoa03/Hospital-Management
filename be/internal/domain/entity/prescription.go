@@ -3,7 +3,7 @@ package entity
 import "time"
 
 type Prescription struct {
-	Id              int64 `gorm:"primaryKey"`
+	Id              int64 `gorm:"primaryKey;autoIncrement"`
 	MedicalRecordId int64
 	MedicineId      int64
 	Amount          int

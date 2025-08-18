@@ -3,16 +3,16 @@ package entity
 import "time"
 
 type MedicalRecord struct {
-	Id            int64 `gorm:"primaryKey"`
+	Id            int64 `gorm:"primaryKey;autoIncrement"`
 	PatientId     int64
 	DoctorId      int64
 	AppointmentId *int64
 
 	Symptoms        string
-	MedicalServices string
+	MedicalServices *string
 	Diagnosis       string
 	Treatment       string
-	Note            string
+	Note            *string
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 

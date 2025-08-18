@@ -8,7 +8,7 @@ type Appointment struct {
 	DoctorId   int64
 	BeginTime  time.Time
 	FinishTime time.Time
-	Status     string `gorm:"type:appointment_status_slug"`
+	Status     string `gorm:"type:appointment_status_slug;default:'scheduled'"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 
