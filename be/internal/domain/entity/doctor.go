@@ -4,7 +4,7 @@ import "time"
 
 type Doctor struct {
 	Id                   int64 `gorm:"primaryKey;autoIncrement"`
-	StaffId              int64
+	StaffId              int64 `gorm:"uniqueIndex"`
 	Specialization       string
 	MedicalLicenseNumber string
 	CreatedAt            time.Time

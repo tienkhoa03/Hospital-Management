@@ -13,12 +13,11 @@ type User struct {
 	DateOfBirth time.Time
 	PhoneNumber string `gorm:"unique"`
 	Address     string
+	Gender      string `gorm:"type:gender_slug;default:'unknown'"`
+	RoleId      int64
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	IsDeleted   bool `gorm:"default:false"`
 
-	Gender string `gorm:"type:gender_slug;default:'unknown'"`
-
-	RoleId    int64
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	IsDeleted bool
-	Role      *Role `gorm:"foreignKey:RoleId;references:Id"`
+	Role *UserRole `gorm:"foreignKey:RoleId;references:Id"`
 }

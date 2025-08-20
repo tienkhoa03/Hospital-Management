@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"BE_Friends_Management/config"
+	"BE_Hospital_Management/config"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

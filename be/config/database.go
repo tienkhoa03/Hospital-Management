@@ -1,17 +1,45 @@
 package config
 
 import (
-	"BE_Friends_Management/internal/domain/entity"
+	"BE_Hospital_Management/internal/domain/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
 )
 
-var admins = []entity.Admin{
+var users = []entity.User{
 	{
 		Name:     "admin1",
 		Email:    "admin@gmail.com",
 		Password: "$2a$10$uD2Sp/ceVMQs.Fxa9883Lejcy4QSiEsWFIihuosOkCqwQaCrs011.",
+		RoleId:   int64(1),
+	},
+}
+
+var userRoles = []entity.UserRole{
+	{
+		RoleSlug: "admin",
+	},
+	{
+		RoleSlug: "manager",
+	},
+	{
+		RoleSlug: "staff",
+	},
+	{
+		RoleSlug: "patient",
+	},
+}
+
+var staffRoles = []entity.StaffRole{
+	{
+		RoleSlug: "doctor",
+	},
+	{
+		RoleSlug: "nurse",
+	},
+	{
+		RoleSlug: "cashing_officer",
 	},
 }
 
@@ -21,22 +49,35 @@ func ConnectToDB() *gorm.DB {
 		log.Fatal("Error connecting to database. Error:", err)
 	}
 
-	createRoleEnumSQL := `
+	createUserRoleEnumSQL := `
 	DO $$
 	BEGIN
-		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'role_slug') THEN
-			CREATE TYPE role_slug AS ENUM (
+		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role_slug') THEN
+			CREATE TYPE user_role_slug AS ENUM (
 				'manager', 
-				'doctor',
+				'staff',
+				'patient'
+			);
+		END IF;
+	END
+	$$;
+	`
+	db.Exec(createUserRoleEnumSQL)
+
+	createStaffRoleEnumSQL := `
+	DO $$
+	BEGIN
+		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'staff_role_slug') THEN
+			CREATE TYPE staff_role_slug AS ENUM (
+				'doctor', 
 				'nurse',
-				'patient',
 				'cashing_officer'
 			);
 		END IF;
 	END
 	$$;
 	`
-	db.Exec(createRoleEnumSQL)
+	db.Exec(createStaffRoleEnumSQL)
 
 	createGenderEnumSQL := `
 	DO $$
@@ -139,13 +180,21 @@ func ConnectToDB() *gorm.DB {
 	`
 	db.Exec(createBloodEnumSQL)
 
-	err = db.AutoMigrate(&entity.Admin{}, &entity.Appointment{}, &entity.Bill{}, &entity.BillItem{}, &entity.Doctor{}, &entity.Manager{}, &entity.MedicalRecord{}, &entity.Medicine{}, &entity.Nurse{}, &entity.Patient{}, &entity.Prescription{}, &entity.Role{}, &entity.Staff{}, &entity.Task{}, &entity.UserToken{}, &entity.User{})
+	err = db.AutoMigrate(&entity.Appointment{}, &entity.Bill{}, &entity.BillItem{}, &entity.Doctor{}, &entity.Manager{}, &entity.MedicalRecord{}, &entity.Medicine{}, &entity.Nurse{}, &entity.Patient{}, &entity.Prescription{}, &entity.Staff{}, &entity.StaffRole{}, &entity.Task{}, &entity.UserToken{}, &entity.User{}, &entity.UserRole{})
 	if err != nil {
 		log.Fatal("Error migrate to database. Error:", err)
 	}
-	for _, admin := range admins {
-		var existing entity.Admin
-		db.Model(&entity.Admin{}).Where("email = ?", admin.Email).FirstOrCreate(&existing, admin)
+	for _, user := range users {
+		var existing entity.User
+		db.Model(&entity.User{}).Where("email = ?", user.Email).FirstOrCreate(&existing, user)
+	}
+	for _, userRole := range userRoles {
+		var existing entity.UserRole
+		db.Model(&entity.UserRole{}).Where("role_slug = ?", userRole.RoleSlug).FirstOrCreate(&existing, userRole)
+	}
+	for _, staffRole := range staffRoles {
+		var existing entity.StaffRole
+		db.Model(&entity.StaffRole{}).Where("role_slug = ?", staffRole.RoleSlug).FirstOrCreate(&existing, staffRole)
 	}
 	return db
 }
