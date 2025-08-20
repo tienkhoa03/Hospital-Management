@@ -1,8 +1,8 @@
 package pkg
 
 import (
-	"BE_Friends_Management/constant"
-	"BE_Friends_Management/internal/domain/dto"
+	"BE_Hospital_Management/constant"
+	"BE_Hospital_Management/internal/domain/dto"
 )
 
 func Null() interface{} {

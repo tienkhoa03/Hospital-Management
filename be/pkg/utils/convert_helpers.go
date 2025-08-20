@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"BE_Friends_Management/internal/domain/entity"
+	"BE_Hospital_Management/internal/domain/entity"
 )
 
 func ConvertUsersToEmails(users []*entity.User) []string {

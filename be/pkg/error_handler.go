@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"BE_Friends_Management/constant"
+	"BE_Hospital_Management/constant"
 	"errors"
 	"fmt"
 	"net/http"

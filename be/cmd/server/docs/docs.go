@@ -119,9 +119,14 @@ const docTemplate = `{
         },
         "/api/auth/register": {
             "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "Register new user",
                 "consumes": [
-                    "multipart/form-data"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -132,476 +137,19 @@ const docTemplate = `{
                 "summary": "Register new user",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "User Email",
-                        "name": "email",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User Password",
-                        "name": "password",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/block": {
-            "post": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Create new block relationship",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "BlockRelationship"
-                ],
-                "summary": "Create new block relationship",
-                "parameters": [
-                    {
-                        "description": "Requestor's email and target's email",
+                        "description": "Request Body",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CreateBlockRequest"
+                            "$ref": "#/definitions/dto.RegisterRequest"
                         }
                     },
                     {
                         "type": "string",
                         "description": "Authorization",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessNoData"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/friendship": {
-            "post": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Create new friendship",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Friendship"
-                ],
-                "summary": "Create new friendship",
-                "parameters": [
-                    {
-                        "description": "List of 2 friend emails",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateFriendshipRequest"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessNoData"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/friendship/common-friends": {
-            "get": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Retrieve common friends list between two email addresses",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Friendship"
-                ],
-                "summary": "Retrieve common friends list between two email addresses",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Email address of user 1",
-                        "name": "email1",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Email address of user 2",
-                        "name": "email2",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessWithFriendsList"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/friendship/friends": {
-            "get": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Retrieve friends list for an email address",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Friendship"
-                ],
-                "summary": "Retrieve friends list for an email address",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Email address",
-                        "name": "email",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessWithFriendsList"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/subscription": {
-            "post": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Create new subscription",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Subscription"
-                ],
-                "summary": "Create new subscription",
-                "parameters": [
-                    {
-                        "description": "Requestor's email and target's email",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateSubscriptionRequest"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessNoData"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/update-recipients": {
-            "post": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Get all email addresses that can receive updates from an email address.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Notification"
-                ],
-                "summary": "Get update recipients",
-                "parameters": [
-                    {
-                        "description": "Sender email and update text",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.GetUpdateRecipientsRequest"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessNoData"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/users": {
-            "get": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Get all user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users Management"
-                ],
-                "summary": "Get all user",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/users/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Get user by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users Management"
-                ],
-                "summary": "Get user by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Update user",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users Management"
-                ],
-                "summary": "Update user",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User's New Email",
-                        "name": "email",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User's New Password",
-                        "name": "password",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Delete user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users Management"
-                ],
-                "summary": "Delete user",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "in": "header"
                     }
                 ],
                 "responses": {
@@ -616,14 +164,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dto.ApiResponseSuccessNoData": {
-            "type": "object",
-            "properties": {
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
         "dto.ApiResponseSuccessStruct": {
             "type": "object",
             "properties": {
@@ -637,78 +177,17 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ApiResponseSuccessWithFriendsList": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "friends": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "dto.CreateBlockRequest": {
+        "dto.DoctorInfoRequest": {
             "type": "object",
             "required": [
-                "requestor",
-                "target"
+                "medical_license_number",
+                "specialization"
             ],
             "properties": {
-                "requestor": {
+                "medical_license_number": {
                     "type": "string"
                 },
-                "target": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.CreateFriendshipRequest": {
-            "type": "object",
-            "required": [
-                "friends"
-            ],
-            "properties": {
-                "friends": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "dto.CreateSubscriptionRequest": {
-            "type": "object",
-            "required": [
-                "requestor",
-                "target"
-            ],
-            "properties": {
-                "requestor": {
-                    "type": "string"
-                },
-                "target": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.GetUpdateRecipientsRequest": {
-            "type": "object",
-            "required": [
-                "sender",
-                "text"
-            ],
-            "properties": {
-                "sender": {
-                    "type": "string"
-                },
-                "text": {
+                "specialization": {
                     "type": "string"
                 }
             }
@@ -739,6 +218,51 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ManagerInfoRequest": {
+            "type": "object",
+            "required": [
+                "department"
+            ],
+            "properties": {
+                "department": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NurseInfoRequest": {
+            "type": "object",
+            "required": [
+                "nursing_license_number"
+            ],
+            "properties": {
+                "nursing_license_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PatientInfoRequest": {
+            "type": "object",
+            "properties": {
+                "allergies": {
+                    "type": "string"
+                },
+                "blood_type": {
+                    "type": "string"
+                },
+                "chronic_conditions": {
+                    "type": "string"
+                },
+                "insurance_number": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.RefreshRequest": {
             "type": "object",
             "required": [
@@ -746,6 +270,82 @@ const docTemplate = `{
             ],
             "properties": {
                 "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "address",
+                "citizen_id",
+                "date_of_birth",
+                "email",
+                "gender",
+                "name",
+                "password",
+                "phone_number",
+                "role"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "citizen_id": {
+                    "type": "string"
+                },
+                "date_of_birth": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "manager_info": {
+                    "$ref": "#/definitions/dto.ManagerInfoRequest"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "patient_info": {
+                    "$ref": "#/definitions/dto.PatientInfoRequest"
+                },
+                "phone_number": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "staff_info": {
+                    "$ref": "#/definitions/dto.StaffInfoRequest"
+                }
+            }
+        },
+        "dto.StaffInfoRequest": {
+            "type": "object",
+            "required": [
+                "department",
+                "role"
+            ],
+            "properties": {
+                "department": {
+                    "type": "string"
+                },
+                "doctor_info": {
+                    "$ref": "#/definitions/dto.DoctorInfoRequest"
+                },
+                "nurse_info": {
+                    "$ref": "#/definitions/dto.NurseInfoRequest"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }
@@ -759,8 +359,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{"http", "https"},
-	Title:            "Friends Management API",
-	Description:      "Friends Management API",
+	Title:            "Hospital Management API",
+	Description:      "Hospital Management API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

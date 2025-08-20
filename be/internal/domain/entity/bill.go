@@ -14,7 +14,7 @@ type Bill struct {
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 
-	CashingOfficer *User          `gorm:"foreignKey:CashingOfficerId;references:Id"`
+	CashingOfficer *Staff         `gorm:"foreignKey:CashingOfficerId;references:Id"`
 	MedicalRecord  *MedicalRecord `gorm:"foreignKey:MedicalRecordId;references:Id"`
 	Patient        *Patient       `gorm:"foreignKey:PatientId;references:Id"`
 	Doctor         *Doctor        `gorm:"foreignKey:DoctorId;references:Id"`

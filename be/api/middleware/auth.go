@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"BE_Friends_Management/constant"
+	"BE_Hospital_Management/constant"
 	"context"
 	"errors"
 	"fmt"
@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"BE_Friends_Management/pkg"
-	"BE_Friends_Management/pkg/utils"
+	"BE_Hospital_Management/pkg"
+	"BE_Hospital_Management/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -72,6 +72,35 @@ func ValidateAccessToken() gin.HandlerFunc {
 		}
 		c.Set("authUserId", claims.UserId)
 		c.Set("authUserRole", claims.Role)
+		c.Next()
+	}
+}
+
+func ParseAccessToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		defer pkg.PanicHandler(c)
+		authHeader := c.GetHeader("Authorization")
+		if authHeader != "" {
+			rawAccessToken := strings.TrimPrefix(authHeader, "Bearer ")
+			claims, err := utils.ParseAccessToken(rawAccessToken)
+			if err != nil {
+				log.Error("Happened error when validating access token. Error: ", err)
+				switch {
+				case errors.Is(err, utils.ErrInvalidAccessToken):
+					pkg.PanicExeption(constant.Unauthorized, err.Error())
+				case errors.Is(err, utils.ErrInvalidSigningMethod):
+					pkg.PanicExeption(constant.Unauthorized, err.Error())
+				default:
+					pkg.PanicExeption(constant.UnknownError, "Invalid Access Token.")
+				}
+			}
+			if claims.ExpiresAt.Time.Before(time.Now()) {
+				log.Error("Happened error when validating access token. Error: ", ErrAccessTokenExpires)
+				pkg.PanicExeption(constant.Unauthorized, ErrAccessTokenExpires.Error())
+			}
+			c.Set("authUserId", claims.UserId)
+			c.Set("authUserRole", claims.Role)
+		}
 		c.Next()
 	}
 }

@@ -3,8 +3,8 @@ package entity
 import "time"
 
 type Patient struct {
-	Id                int64 `gorm:"primaryKey;autoIncrement"`
-	UserId            int64
+	Id                int64   `gorm:"primaryKey;autoIncrement"`
+	UserId            int64   `gorm:"uniqueIndex"`
 	InsuranceNumber   *string `gorm:"unique"`
 	BloodType         *string `gorm:"type:blood_type_slug"`
 	Allergies         *string

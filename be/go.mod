@@ -1,4 +1,4 @@
-module BE_Friends_Management
+module BE_Hospital_Management
 
 go 1.24.4
 
