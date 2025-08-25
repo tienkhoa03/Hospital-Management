@@ -15,4 +15,6 @@ type Staff struct {
 	User    *User      `gorm:"foreignKey:UserId;references:Id"`
 	Manager *Manager   `gorm:"foreignKey:ManageBy;references:Id"`
 	Role    *StaffRole `gorm:"foreignKey:RoleId;references:Id"`
+	Nurse   *Nurse
+	Doctor  *Doctor
 }

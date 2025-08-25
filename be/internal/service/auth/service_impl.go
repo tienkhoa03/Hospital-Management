@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/dto"
 	"BE_Hospital_Management/internal/domain/entity"
 	authRepository "BE_Hospital_Management/internal/repository/auth"
@@ -46,8 +47,7 @@ func NewAuthService(repo authRepository.AuthRepository, userRepo userRepository.
 	}
 }
 
-func (service *authService) RegisterUser(authUserId *int64, authUserRole *string, request dto.RegisterRequest) (*dto.RegisterResponse, error) {
-
+func (service *authService) RegisterUser(authUserId *int64, authUserRole *string, request dto.UserInfoRequest) (*dto.UserInfoResponse, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 		Gender:      request.Gender,
 		RoleId:      userRole.Id,
 	}
-	var response *dto.RegisterResponse
+	var response *dto.UserInfoResponse
 	db := service.repo.GetDB()
 	err = db.Transaction(func(tx *gorm.DB) error {
 		newUser, err := service.userRepo.CreateUser(tx, &user)
@@ -88,21 +88,7 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 			}
 			return err
 		}
-		response = &dto.RegisterResponse{
-			Id:          newUser.Id,
-			Name:        newUser.Name,
-			Email:       newUser.Email,
-			CitizenId:   newUser.CitizenId,
-			DateOfBirth: newUser.DateOfBirth,
-			PhoneNumber: newUser.PhoneNumber,
-			Address:     newUser.Address,
-			Gender:      newUser.Gender,
-			RoleId:      newUser.RoleId,
-			Role:        userRole.RoleSlug,
-			CreatedAt:   newUser.CreatedAt,
-			UpdatedAt:   newUser.UpdatedAt,
-		}
-		if userRole.RoleSlug == entity.RolePatient {
+		if userRole.RoleSlug == constant.RolePatient {
 			if request.PatientInfo == nil {
 				return ErrMissingPatientInfo
 			}
@@ -121,19 +107,12 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 				}
 				return err
 			}
-			response.PatientInfo = &dto.PatientInfoResponse{
-				Id:                newPatient.Id,
-				InsuranceNumber:   newPatient.InsuranceNumber,
-				BloodType:         newPatient.BloodType,
-				Allergies:         newPatient.Allergies,
-				ChronicConditions: newPatient.ChronicConditions,
-				Status:            newPatient.Status,
-			}
-		} else if userRole.RoleSlug == entity.RoleStaff {
+			response = utils.MapPatientToUserInfoResponse(newUser, newPatient)
+		} else if userRole.RoleSlug == constant.RoleStaff {
 			if authUserId == nil || authUserRole == nil {
 				return ErrNotPermitted
 			}
-			if *authUserRole != entity.RoleManager {
+			if *authUserRole != constant.RoleManager {
 				return ErrNotPermitted
 			}
 			if request.StaffInfo == nil {
@@ -167,14 +146,10 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 				}
 				return err
 			}
-			response.StaffInfo = &dto.StaffInfoResponse{
-				Id:         newStaff.Id,
-				Department: newStaff.Department,
-				Status:     newStaff.Status,
-				RoleId:     newStaff.RoleId,
-				Role:       staffRole.RoleSlug,
+			if staffRole.RoleSlug == constant.RoleDoctor && request.StaffInfo.DoctorInfo == nil {
+				return ErrMissingStaffInfo
 			}
-			if request.StaffInfo.DoctorInfo == nil && request.StaffInfo.NurseInfo == nil {
+			if staffRole.RoleSlug == constant.RoleNurse && request.StaffInfo.NurseInfo == nil {
 				return ErrMissingStaffInfo
 			}
 			if request.StaffInfo.DoctorInfo != nil {
@@ -183,7 +158,6 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 					Specialization:       request.StaffInfo.DoctorInfo.Specialization,
 					MedicalLicenseNumber: request.StaffInfo.DoctorInfo.MedicalLicenseNumber,
 				}
-
 				newDoctor, err := service.doctorRepo.CreateDoctor(tx, &doctor)
 				if err != nil {
 					if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
@@ -191,11 +165,7 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 					}
 					return err
 				}
-				response.StaffInfo.DoctorInfo = &dto.DoctorInfoResponse{
-					Id:                   newDoctor.Id,
-					Specialization:       newDoctor.Specialization,
-					MedicalLicenseNumber: newDoctor.MedicalLicenseNumber,
-				}
+				response = utils.MapDoctorToUserInfoResponse(newUser, newStaff, newDoctor)
 			} else if request.StaffInfo.NurseInfo != nil {
 				nurse := entity.Nurse{
 					StaffId:              newStaff.Id,
@@ -208,16 +178,13 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 					}
 					return err
 				}
-				response.StaffInfo.NurseInfo = &dto.NurseInfoResponse{
-					Id:                   newNurse.Id,
-					NursingLicenseNumber: newNurse.NursingLicenseNumber,
-				}
+				response = utils.MapNurseToUserInfoResponse(newUser, newStaff, newNurse)
 			}
-		} else if userRole.RoleSlug == entity.RoleManager {
+		} else if userRole.RoleSlug == constant.RoleManager {
 			if authUserId == nil || authUserRole == nil {
 				return ErrNotPermitted
 			}
-			if *authUserRole != entity.RoleAdmin {
+			if *authUserRole != constant.RoleAdmin {
 				return ErrNotPermitted
 			}
 			if request.ManagerInfo == nil {
@@ -235,11 +202,7 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 				}
 				return err
 			}
-			response.ManagerInfo = &dto.ManagerInfoResponse{
-				Id:         newManager.Id,
-				Department: newManager.Department,
-				Status:     newManager.Status,
-			}
+			response = utils.MapManagerToUserInfoResponse(newUser, newManager)
 		}
 		return nil
 	})
@@ -259,12 +222,9 @@ func (service *authService) Login(email, password string) (string, string, error
 		return "", "", ErrInvalidLoginRequest
 	}
 	accessTokenExpiredTime := time.Now().Add(utils.AccessTokenExpiredTime)
-	userRole, err := service.userRoleRepo.GetUserRoleById(user.RoleId)
-	if err != nil {
-		return "", "", err
-	}
+	userRole := user.Role
 	authUserRole := userRole.RoleSlug
-	if userRole.RoleSlug == entity.RoleStaff {
+	if userRole.RoleSlug == constant.RoleStaff {
 		staff, err := service.staffRepo.GetStaffByUserId(user.Id)
 		if err != nil {
 			return "", "", err
@@ -341,7 +301,7 @@ func (service *authService) RefreshAccessToken(rawRefreshToken string) (string, 
 			return err
 		}
 		tokenRecord := &entity.UserToken{
-			UserId:       userToken.Id,
+			UserId:       userToken.UserId,
 			RefreshToken: refreshToken,
 			ExpiresAt:    refreshTokenExpiredTime,
 			IsRevoked:    false,

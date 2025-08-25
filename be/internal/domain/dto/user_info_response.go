@@ -2,7 +2,7 @@ package dto
 
 import "time"
 
-type RegisterResponse struct {
+type UserInfoResponse struct {
 	Id          int64     `json:"id"`
 	Name        string    `json:"name"`
 	Email       string    `json:"email"`

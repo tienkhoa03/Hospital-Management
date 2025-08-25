@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/entity"
 	"gorm.io/gorm"
 )
@@ -61,8 +62,8 @@ func (r *PostgreSQLManagerRepository) CreateManager(tx *gorm.DB, manager *entity
 	return manager, result.Error
 }
 
-func (r *PostgreSQLManagerRepository) DeleteManagerById(tx *gorm.DB, managerId int64) error {
-	result := tx.Model(&entity.Manager{}).Where("id = ?", managerId).Delete(entity.Manager{})
+func (r *PostgreSQLManagerRepository) DeleteManagerByUserId(tx *gorm.DB, managerUID int64) error {
+	result := tx.Model(&entity.Manager{}).Where("user_id = ?", managerUID).Update("status", constant.ManagerStatusInactive)
 	return result.Error
 }
 

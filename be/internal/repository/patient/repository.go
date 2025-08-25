@@ -12,7 +12,11 @@ type PatientRepository interface {
 	CreatePatient(tx *gorm.DB, patient *entity.Patient) (*entity.Patient, error)
 	GetAllPatient() ([]*entity.Patient, error)
 	GetPatientById(patientId int64) (*entity.Patient, error)
+	GetPatientByIdWithUserInfo(patientId int64) (*entity.Patient, error)
+	GetPatientByUserIdWithUserInfo(patientId int64) (*entity.Patient, error)
+	GetPatientByUserId(userId int64) (*entity.Patient, error)
 	GetPatientsFromIds(patientIds []int64) ([]*entity.Patient, error)
+	GetPatientsFromIdsWithUserInfo(patientIds []int64) ([]*entity.Patient, error)
 	UpdatePatient(tx *gorm.DB, patient *entity.Patient) (*entity.Patient, error)
-	DeletePatientById(tx *gorm.DB, patientId int64) error
+	DeletePatientByUserId(tx *gorm.DB, patientId int64) error
 }
