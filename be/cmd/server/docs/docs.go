@@ -142,7 +142,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.RegisterRequest"
+                            "$ref": "#/definitions/dto.UserInfoRequest"
                         }
                     },
                     {
@@ -150,6 +150,279 @@ const docTemplate = `{
                         "description": "Authorization",
                         "name": "Authorization",
                         "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/me": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get current user information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get current user information",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/me/doctors": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get all doctors for current manager",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all doctors for current manager",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/me/nurses": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get all nurses for current manager",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all nurses for current manager",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/me/patients": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get all patients for current doctor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all patients for current doctor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/me/patients/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get patients by user ID for current doctor",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get patients by user ID for current doctor",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Patient UID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/me/staffs": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get all staffs for current manager",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all staffs for current manager",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/me/staffs/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get staff by user ID for current manager",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get staff by user ID for current manager",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Staff UID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -274,7 +547,31 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.RegisterRequest": {
+        "dto.StaffInfoRequest": {
+            "type": "object",
+            "required": [
+                "department",
+                "role"
+            ],
+            "properties": {
+                "department": {
+                    "type": "string"
+                },
+                "doctor_info": {
+                    "$ref": "#/definitions/dto.DoctorInfoRequest"
+                },
+                "nurse_info": {
+                    "$ref": "#/definitions/dto.NurseInfoRequest"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UserInfoRequest": {
             "type": "object",
             "required": [
                 "address",
@@ -323,30 +620,6 @@ const docTemplate = `{
                 },
                 "staff_info": {
                     "$ref": "#/definitions/dto.StaffInfoRequest"
-                }
-            }
-        },
-        "dto.StaffInfoRequest": {
-            "type": "object",
-            "required": [
-                "department",
-                "role"
-            ],
-            "properties": {
-                "department": {
-                    "type": "string"
-                },
-                "doctor_info": {
-                    "$ref": "#/definitions/dto.DoctorInfoRequest"
-                },
-                "nurse_info": {
-                    "$ref": "#/definitions/dto.NurseInfoRequest"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
                 }
             }
         }

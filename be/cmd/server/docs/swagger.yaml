@@ -71,7 +71,23 @@ definitions:
     required:
     - refresh_token
     type: object
-  dto.RegisterRequest:
+  dto.StaffInfoRequest:
+    properties:
+      department:
+        type: string
+      doctor_info:
+        $ref: '#/definitions/dto.DoctorInfoRequest'
+      nurse_info:
+        $ref: '#/definitions/dto.NurseInfoRequest'
+      role:
+        type: string
+      status:
+        type: string
+    required:
+    - department
+    - role
+    type: object
+  dto.UserInfoRequest:
     properties:
       address:
         type: string
@@ -106,22 +122,6 @@ definitions:
     - name
     - password
     - phone_number
-    - role
-    type: object
-  dto.StaffInfoRequest:
-    properties:
-      department:
-        type: string
-      doctor_info:
-        $ref: '#/definitions/dto.DoctorInfoRequest'
-      nurse_info:
-        $ref: '#/definitions/dto.NurseInfoRequest'
-      role:
-        type: string
-      status:
-        type: string
-    required:
-    - department
     - role
     type: object
 info:
@@ -207,7 +207,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/dto.RegisterRequest'
+          $ref: '#/definitions/dto.UserInfoRequest'
       - description: Authorization
         in: header
         name: Authorization
@@ -224,6 +224,177 @@ paths:
       summary: Register new user
       tags:
       - Auth
+  /api/users/me:
+    get:
+      consumes:
+      - application/json
+      description: Get current user information
+      parameters:
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get current user information
+      tags:
+      - User
+  /api/users/me/doctors:
+    get:
+      consumes:
+      - application/json
+      description: Get all doctors for current manager
+      parameters:
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all doctors for current manager
+      tags:
+      - User
+  /api/users/me/nurses:
+    get:
+      consumes:
+      - application/json
+      description: Get all nurses for current manager
+      parameters:
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all nurses for current manager
+      tags:
+      - User
+  /api/users/me/patients:
+    get:
+      consumes:
+      - application/json
+      description: Get all patients for current doctor
+      parameters:
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all patients for current doctor
+      tags:
+      - User
+  /api/users/me/patients/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get patients by user ID for current doctor
+      parameters:
+      - description: Patient UID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get patients by user ID for current doctor
+      tags:
+      - User
+  /api/users/me/staffs:
+    get:
+      consumes:
+      - application/json
+      description: Get all staffs for current manager
+      parameters:
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all staffs for current manager
+      tags:
+      - User
+  /api/users/me/staffs/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get staff by user ID for current manager
+      parameters:
+      - description: Staff UID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get staff by user ID for current manager
+      tags:
+      - User
 schemes:
 - http
 - https

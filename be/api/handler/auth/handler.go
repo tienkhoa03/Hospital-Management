@@ -27,7 +27,7 @@ func NewAuthHandler(service service.AuthService) *AuthHandler {
 // @Tags         Auth
 // @Accept 		 json
 // @Produce      json
-// @Param 		 request body dto.RegisterRequest true "Request Body"
+// @Param 		 request body dto.UserInfoRequest true "Request Body"
 // @Router       /api/auth/register [POST]
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string false "Authorization"
@@ -39,7 +39,7 @@ func (h *AuthHandler) RegisterUser(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 	authUserId := utils.GetAuthUserId(c)
 	authUserRole := utils.GetAuthUserRole(c)
-	var request dto.RegisterRequest
+	var request dto.UserInfoRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		log.Error("Happened error when mapping request. Error: ", err)
 		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")

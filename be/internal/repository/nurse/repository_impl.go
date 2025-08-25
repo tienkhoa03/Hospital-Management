@@ -36,6 +36,15 @@ func (r *PostgreSQLNurseRepository) GetNurseById(nurseId int64) (*entity.Nurse, 
 	return &nurse, nil
 }
 
+func (r *PostgreSQLNurseRepository) GetNurseByStaffId(staffId int64) (*entity.Nurse, error) {
+	var nurse = entity.Nurse{}
+	result := r.db.Model(&entity.Nurse{}).Where("staff_id = ?", staffId).First(&nurse)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &nurse, nil
+}
+
 func (r *PostgreSQLNurseRepository) GetNursesFromIds(nurseIds []int64) ([]*entity.Nurse, error) {
 	var nurses []*entity.Nurse
 	result := r.db.Model(&entity.Nurse{}).Where("id IN ?", nurseIds).Find(&nurses)

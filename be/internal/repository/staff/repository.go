@@ -13,6 +13,8 @@ type StaffRepository interface {
 	GetAllStaff() ([]*entity.Staff, error)
 	GetStaffById(staffId int64) (*entity.Staff, error)
 	GetStaffsFromIds(staffIds []int64) ([]*entity.Staff, error)
+	GetStaffsByManagerIdWithInformation(managerId int64) ([]*entity.Staff, error)
+	GetStaffsByUserIdWithInformation(userId int64) (*entity.Staff, error)
 	GetStaffByUserId(userId int64) (*entity.Staff, error)
 	UpdateStaff(tx *gorm.DB, staff *entity.Staff) (*entity.Staff, error)
 	DeleteStaffById(tx *gorm.DB, staffId int64) error

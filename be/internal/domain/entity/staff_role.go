@@ -11,8 +11,3 @@ type StaffRole struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
-
-const (
-	RoleDoctor = "doctor"
-	RoleNurse  = "nurse"
-)

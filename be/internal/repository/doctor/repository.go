@@ -12,6 +12,7 @@ type DoctorRepository interface {
 	CreateDoctor(tx *gorm.DB, doctor *entity.Doctor) (*entity.Doctor, error)
 	GetAllDoctor() ([]*entity.Doctor, error)
 	GetDoctorById(doctorId int64) (*entity.Doctor, error)
+	GetDoctorByStaffId(staffId int64) (*entity.Doctor, error)
 	GetDoctorsFromIds(doctorIds []int64) ([]*entity.Doctor, error)
 	UpdateDoctor(tx *gorm.DB, doctor *entity.Doctor) (*entity.Doctor, error)
 	DeleteDoctorById(tx *gorm.DB, doctorId int64) error
