@@ -312,3 +312,82 @@ func (h *UserHandler) GetMyStaffByUID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, userInfo))
 }
+
+// User godoc
+// @Summary      Delete manager by user ID
+// @Description  Delete manager by user ID
+// @Tags         User
+// @Accept 		 json
+// @Produce      json
+// @Router       /api/users/managers/{id} [delete]
+// @Param id path int true "manager UID"
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @param Authorization header string true "User Authorization"
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *UserHandler) DeleteManagerByUID(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	managerUIDStr := c.Param("id")
+	managerUID, err := strconv.ParseInt(managerUIDStr, 10, 64)
+	if err != nil {
+		log.Error("Happened error when converting Id to int64. Error: ", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Happened error when converting Id to int64")
+	}
+	err = h.service.DeleteManagerByUID(managerUID)
+	if err != nil {
+		log.Error("Happened error when deleting manager. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when deleting manager")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessNoData())
+}
+
+// User godoc
+// @Summary      Delete staff by user ID for manager
+// @Description  Delete staff by user ID for manager
+// @Tags         User
+// @Accept 		 json
+// @Produce      json
+// @Router       /api/users/me/staffs/{id} [delete]
+// @Param id path int true "staff UID"
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @param Authorization header string true "User Authorization"
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *UserHandler) DeleteStaffByUID(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserId(c)
+	if authUserId == nil {
+		log.Error("Happened error when deleting staff. Error: ", "Missing user ID in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+	}
+	staffUIDStr := c.Param("id")
+	staffUID, err := strconv.ParseInt(staffUIDStr, 10, 64)
+	if err != nil {
+		log.Error("Happened error when converting Id to int64. Error: ", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Happened error when converting Id to int64")
+	}
+	err = h.service.DeleteStaffByUID(staffUID, *authUserId)
+	if err != nil {
+		log.Error("Happened error when deleting staff. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when deleting staff")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessNoData())
+}

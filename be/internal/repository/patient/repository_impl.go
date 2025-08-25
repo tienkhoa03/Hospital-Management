@@ -1,6 +1,7 @@
 package patient
 
 import (
+	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/entity"
 
 	"gorm.io/gorm"
@@ -89,8 +90,8 @@ func (r *PostgreSQLPatientRepository) CreatePatient(tx *gorm.DB, patient *entity
 	return patient, result.Error
 }
 
-func (r *PostgreSQLPatientRepository) DeletePatientById(tx *gorm.DB, patientId int64) error {
-	result := tx.Model(&entity.Patient{}).Where("id = ?", patientId).Delete(entity.Patient{})
+func (r *PostgreSQLPatientRepository) DeletePatientByUserId(tx *gorm.DB, patientUID int64) error {
+	result := tx.Model(&entity.Patient{}).Where("id = ?", patientUID).Update("status", constant.PatientStatusInactive)
 	return result.Error
 }
 

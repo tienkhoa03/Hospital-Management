@@ -15,5 +15,4 @@ type DoctorRepository interface {
 	GetDoctorByStaffId(staffId int64) (*entity.Doctor, error)
 	GetDoctorsFromIds(doctorIds []int64) ([]*entity.Doctor, error)
 	UpdateDoctor(tx *gorm.DB, doctor *entity.Doctor) (*entity.Doctor, error)
-	DeleteDoctorById(tx *gorm.DB, doctorId int64) error
 }

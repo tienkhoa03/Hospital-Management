@@ -18,5 +18,5 @@ type PatientRepository interface {
 	GetPatientsFromIds(patientIds []int64) ([]*entity.Patient, error)
 	GetPatientsFromIdsWithUserInfo(patientIds []int64) ([]*entity.Patient, error)
 	UpdatePatient(tx *gorm.DB, patient *entity.Patient) (*entity.Patient, error)
-	DeletePatientById(tx *gorm.DB, patientId int64) error
+	DeletePatientByUserId(tx *gorm.DB, patientId int64) error
 }

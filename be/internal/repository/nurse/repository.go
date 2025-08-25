@@ -15,5 +15,4 @@ type NurseRepository interface {
 	GetNurseByStaffId(staffId int64) (*entity.Nurse, error)
 	GetNursesFromIds(nurseIds []int64) ([]*entity.Nurse, error)
 	UpdateNurse(tx *gorm.DB, nurse *entity.Nurse) (*entity.Nurse, error)
-	DeleteNurseById(tx *gorm.DB, nurseId int64) error
 }

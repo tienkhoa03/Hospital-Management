@@ -62,11 +62,6 @@ func (r *PostgreSQLNurseRepository) CreateNurse(tx *gorm.DB, nurse *entity.Nurse
 	return nurse, result.Error
 }
 
-func (r *PostgreSQLNurseRepository) DeleteNurseById(tx *gorm.DB, nurseId int64) error {
-	result := tx.Model(&entity.Nurse{}).Where("id = ?", nurseId).Delete(entity.Nurse{})
-	return result.Error
-}
-
 func (r *PostgreSQLNurseRepository) UpdateNurse(tx *gorm.DB, nurse *entity.Nurse) (*entity.Nurse, error) {
 	result := tx.Model(&entity.Nurse{}).Where("id = ?", nurse.Id).Updates(nurse)
 	if result.Error != nil {

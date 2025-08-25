@@ -351,19 +351,62 @@ func (service *userService) GetStaffByUserIdForManager(staffUID, managerUID int6
 	return response, nil
 }
 
-//
-//func (service *userService) DeleteUserById(userId int64) error {
-//	db := service.repo.GetDB()
-//	err := db.Transaction(func(tx *gorm.DB) error {
-//		err := service.repo.DeleteUserById(tx, userId)
-//		return err
-//	})
-//	if errors.Is(err, gorm.ErrRecordNotFound) {
-//		return ErrUserNotFound
-//	}
-//	return err
-//}
-//
+func (service *userService) DeleteManagerByUID(managerUID int64) error {
+	_, err := service.managerRepo.GetManagerByUserId(managerUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrUserNotFound
+		}
+		return err
+	}
+	db := service.repo.GetDB()
+	err = db.Transaction(func(tx *gorm.DB) error {
+		err := service.repo.DeleteUserById(tx, managerUID)
+		if err != nil {
+			return err
+		}
+		err = service.managerRepo.DeleteManagerByUserId(tx, managerUID)
+		return err
+	})
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrUserNotFound
+	}
+	return err
+}
+
+func (service *userService) DeleteStaffByUID(staffUID, managerUID int64) error {
+	staff, err := service.staffRepo.GetStaffByUserId(staffUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrUserNotFound
+		}
+		return err
+	}
+	manager, err := service.managerRepo.GetManagerByUserId(managerUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrUserNotFound
+		}
+		return err
+	}
+	if staff.ManageBy != manager.Id {
+		return ErrNotPermitted
+	}
+	db := service.repo.GetDB()
+	err = db.Transaction(func(tx *gorm.DB) error {
+		err := service.repo.DeleteUserById(tx, staffUID)
+		if err != nil {
+			return err
+		}
+		err = service.staffRepo.DeleteStaffByUserId(tx, staffUID)
+		return err
+	})
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ErrUserNotFound
+	}
+	return err
+}
+
 //func (service *userService) UpdateUser(userId int64, email string, password string) (*entity.User, error) {
 //	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 //	if err != nil {

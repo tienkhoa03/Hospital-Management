@@ -17,5 +17,5 @@ type StaffRepository interface {
 	GetStaffsByUserIdWithInformation(userId int64) (*entity.Staff, error)
 	GetStaffByUserId(userId int64) (*entity.Staff, error)
 	UpdateStaff(tx *gorm.DB, staff *entity.Staff) (*entity.Staff, error)
-	DeleteStaffById(tx *gorm.DB, staffId int64) error
+	DeleteStaffByUserId(tx *gorm.DB, staffId int64) error
 }

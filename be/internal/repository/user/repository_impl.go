@@ -72,7 +72,7 @@ func (r *PostgreSQLUserRepository) CreateUser(tx *gorm.DB, user *entity.User) (*
 }
 
 func (r *PostgreSQLUserRepository) DeleteUserById(tx *gorm.DB, userId int64) error {
-	result := tx.Model(&entity.User{}).Where("id = ?", userId).Delete(entity.User{})
+	result := tx.Model(&entity.User{}).Where("id = ?", userId).Update("is_deleted", true)
 	return result.Error
 }
 

@@ -18,4 +18,6 @@ func registerUserRoutes(api *gin.RouterGroup, h *user.UserHandler, db *gorm.DB) 
 	api.GET("users/me/nurses", middleware.RequireAnyRole([]string{constant.RoleManager}), h.GetAllMyNurses)
 	api.GET("users/me/cashing_officers", middleware.RequireAnyRole([]string{constant.RoleManager}), h.GetAllMyCashingOfficers)
 	api.GET("users/me/staffs/:id", middleware.RequireAnyRole([]string{constant.RoleManager}), h.GetMyStaffByUID)
+	api.DELETE("users/managers/:id", middleware.RequireAnyRole([]string{constant.RoleAdmin}), h.DeleteManagerByUID)
+	api.DELETE("users/me/staffs/:id", middleware.RequireAnyRole([]string{constant.RoleManager}), h.DeleteStaffByUID)
 }

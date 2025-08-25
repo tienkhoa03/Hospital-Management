@@ -1,6 +1,7 @@
 package staff
 
 import (
+	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/entity"
 
 	"gorm.io/gorm"
@@ -79,8 +80,8 @@ func (r *PostgreSQLStaffRepository) CreateStaff(tx *gorm.DB, staff *entity.Staff
 	return staff, result.Error
 }
 
-func (r *PostgreSQLStaffRepository) DeleteStaffById(tx *gorm.DB, staffId int64) error {
-	result := tx.Model(&entity.Staff{}).Where("id = ?", staffId).Delete(entity.Staff{})
+func (r *PostgreSQLStaffRepository) DeleteStaffByUserId(tx *gorm.DB, staffUID int64) error {
+	result := tx.Model(&entity.Staff{}).Where("user_id = ?", staffUID).Update("status", constant.StaffStatusInactive)
 	return result.Error
 }
 

@@ -15,5 +15,5 @@ type ManagerRepository interface {
 	GetManagersFromIds(managerIds []int64) ([]*entity.Manager, error)
 	GetManagerByUserId(userId int64) (*entity.Manager, error)
 	UpdateManager(tx *gorm.DB, manager *entity.Manager) (*entity.Manager, error)
-	DeleteManagerById(tx *gorm.DB, managerId int64) error
+	DeleteManagerByUserId(tx *gorm.DB, managerId int64) error
 }

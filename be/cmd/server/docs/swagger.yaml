@@ -224,6 +224,34 @@ paths:
       summary: Register new user
       tags:
       - Auth
+  /api/users/managers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete manager by user ID
+      parameters:
+      - description: manager UID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Delete manager by user ID
+      tags:
+      - User
   /api/users/me:
     get:
       consumes:
@@ -391,6 +419,33 @@ paths:
       tags:
       - User
   /api/users/me/staffs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete staff by user ID for manager
+      parameters:
+      - description: staff UID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Delete staff by user ID for manager
+      tags:
+      - User
     get:
       consumes:
       - application/json
