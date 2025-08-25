@@ -131,3 +131,30 @@ func MapNurseToUserInfoResponse(user *entity.User, staff *entity.Staff, nurse *e
 		},
 	}
 }
+
+func MapCashingOfficerToUserInfoResponse(user *entity.User, staff *entity.Staff) *dto.UserInfoResponse {
+	if user == nil || staff == nil {
+		return nil
+	}
+	return &dto.UserInfoResponse{
+		Id:          user.Id,
+		Name:        user.Name,
+		Email:       user.Email,
+		CitizenId:   user.CitizenId,
+		DateOfBirth: user.DateOfBirth,
+		PhoneNumber: user.PhoneNumber,
+		Address:     user.Address,
+		Gender:      user.Gender,
+		RoleId:      user.RoleId,
+		Role:        constant.RoleStaff,
+		CreatedAt:   user.CreatedAt,
+		UpdatedAt:   user.UpdatedAt,
+		StaffInfo: &dto.StaffInfoResponse{
+			Id:         staff.Id,
+			Department: staff.Department,
+			Status:     staff.Status,
+			RoleId:     staff.RoleId,
+			Role:       constant.RoleCashingOfficer,
+		},
+	}
+}

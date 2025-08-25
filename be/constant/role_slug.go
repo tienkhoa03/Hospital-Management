@@ -1,14 +1,14 @@
 package constant
 
 const (
-	RoleAdmin          = "admin"
-	RoleManager        = "manager"
-	RoleStaff          = "staff"
-	RolePatient        = "patient"
-	RoleCashingOfficer = "cashing_officer"
+	RoleAdmin   = "admin"
+	RoleManager = "manager"
+	RoleStaff   = "staff"
+	RolePatient = "patient"
 )
 
 const (
-	RoleDoctor = "doctor"
-	RoleNurse  = "nurse"
+	RoleDoctor         = "doctor"
+	RoleNurse          = "nurse"
+	RoleCashingOfficer = "cashing_officer"
 )

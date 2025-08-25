@@ -21,6 +21,7 @@ type UserService interface {
 	GetAllDoctorsByManagerUID(managerUID int64) ([]*dto.UserInfoResponse, error)
 	GetAllNursesByManagerUID(managerUID int64) ([]*dto.UserInfoResponse, error)
 	GetStaffByUserIdForManager(staffUID, managerUID int64) (*dto.UserInfoResponse, error)
+	GetAllCashingOfficersByManagerUID(managerUID int64) ([]*dto.UserInfoResponse, error)
 	//DeleteUserById(userId int64) error
 	//UpdateUser(userId int64, email string, password string) (*entity.User, error)
 }

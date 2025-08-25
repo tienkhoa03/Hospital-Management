@@ -237,6 +237,41 @@ func (h *UserHandler) GetAllMyNurses(c *gin.Context) {
 }
 
 // User godoc
+// @Summary      Get all cashing officers for current manager
+// @Description  Get all cashing officers for current manager
+// @Tags         User
+// @Accept 		 json
+// @Produce      json
+// @Router       /api/users/me/cashing_officers [get]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @param Authorization header string true "User Authorization"
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *UserHandler) GetAllMyCashingOfficers(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserId(c)
+	if authUserId == nil {
+		log.Error("Happened error when getting cashing officers. Error: ", "Missing user ID in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+	}
+	userInfo, err := h.service.GetAllCashingOfficersByManagerUID(*authUserId)
+	if err != nil {
+		log.Error("Happened error when getting cashing officers. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when getting cashing officers.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, userInfo))
+}
+
+// User godoc
 // @Summary      Get staff by user ID for current manager
 // @Description  Get staff by user ID for current manager
 // @Tags         User

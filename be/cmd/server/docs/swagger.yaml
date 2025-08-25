@@ -247,6 +247,29 @@ paths:
       summary: Get current user information
       tags:
       - User
+  /api/users/me/cashing_officers:
+    get:
+      consumes:
+      - application/json
+      description: Get all cashing officers for current manager
+      parameters:
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all cashing officers for current manager
+      tags:
+      - User
   /api/users/me/doctors:
     get:
       consumes:

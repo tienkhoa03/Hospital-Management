@@ -146,7 +146,10 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 				}
 				return err
 			}
-			if request.StaffInfo.DoctorInfo == nil && request.StaffInfo.NurseInfo == nil {
+			if staffRole.RoleSlug == constant.RoleDoctor && request.StaffInfo.DoctorInfo == nil {
+				return ErrMissingStaffInfo
+			}
+			if staffRole.RoleSlug == constant.RoleNurse && request.StaffInfo.NurseInfo == nil {
 				return ErrMissingStaffInfo
 			}
 			if request.StaffInfo.DoctorInfo != nil {

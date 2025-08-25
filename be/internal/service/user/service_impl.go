@@ -100,6 +100,8 @@ func (service *userService) GetUserById(userId int64) (*dto.UserInfoResponse, er
 				return nil, err
 			}
 			response = utils.MapNurseToUserInfoResponse(user, staff, nurse)
+		} else if staff.Role.RoleSlug == constant.RoleCashingOfficer {
+			response = utils.MapCashingOfficerToUserInfoResponse(user, staff)
 		}
 	}
 	return response, nil
@@ -208,12 +210,16 @@ func (service *userService) GetAllStaffsByManagerUID(managerUID int64) ([]*dto.U
 				continue
 			}
 			userInfoResponse = utils.MapDoctorToUserInfoResponse(staff.User, staff, staff.Doctor)
-		}
-		if staff.Role.RoleSlug == constant.RoleNurse {
+		} else if staff.Role.RoleSlug == constant.RoleNurse {
 			if staff.User == nil || staff.Nurse == nil {
 				continue
 			}
 			userInfoResponse = utils.MapNurseToUserInfoResponse(staff.User, staff, staff.Nurse)
+		} else if staff.Role.RoleSlug == constant.RoleCashingOfficer {
+			if staff.User == nil {
+				continue
+			}
+			userInfoResponse = utils.MapCashingOfficerToUserInfoResponse(staff.User, staff)
 		}
 		response = append(response, userInfoResponse)
 	}
@@ -278,6 +284,35 @@ func (service *userService) GetAllNursesByManagerUID(managerUID int64) ([]*dto.U
 	return response, nil
 }
 
+func (service *userService) GetAllCashingOfficersByManagerUID(managerUID int64) ([]*dto.UserInfoResponse, error) {
+	manager, err := service.managerRepo.GetManagerByUserId(managerUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	if manager.Status == constant.ManagerStatusInactive {
+		return nil, ErrNotPermitted
+	}
+	staffs, err := service.staffRepo.GetStaffsByManagerIdWithInformation(manager.Id)
+	if err != nil {
+		return nil, err
+	}
+	var response []*dto.UserInfoResponse
+	for _, staff := range staffs {
+		var userInfoResponse *dto.UserInfoResponse
+		if staff.Role.RoleSlug == constant.RoleCashingOfficer {
+			if staff.User == nil {
+				continue
+			}
+			userInfoResponse = utils.MapCashingOfficerToUserInfoResponse(staff.User, staff)
+			response = append(response, userInfoResponse)
+		}
+	}
+	return response, nil
+}
+
 func (service *userService) GetStaffByUserIdForManager(staffUID, managerUID int64) (*dto.UserInfoResponse, error) {
 	staff, err := service.staffRepo.GetStaffsByUserIdWithInformation(staffUID)
 	if err != nil {
@@ -307,6 +342,11 @@ func (service *userService) GetStaffByUserIdForManager(staffUID, managerUID int6
 			return nil, ErrUserNotFound
 		}
 		response = utils.MapNurseToUserInfoResponse(staff.User, staff, staff.Nurse)
+	} else if staff.Role.RoleSlug == constant.RoleCashingOfficer {
+		if staff.User == nil {
+			return nil, ErrUserNotFound
+		}
+		response = utils.MapCashingOfficerToUserInfoResponse(staff.User, staff)
 	}
 	return response, nil
 }

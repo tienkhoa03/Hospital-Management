@@ -16,5 +16,6 @@ func registerUserRoutes(api *gin.RouterGroup, h *user.UserHandler, db *gorm.DB) 
 	api.GET("users/me/staffs", middleware.RequireAnyRole([]string{constant.RoleManager}), h.GetAllMyStaffs)
 	api.GET("users/me/doctors", middleware.RequireAnyRole([]string{constant.RoleManager}), h.GetAllMyDoctors)
 	api.GET("users/me/nurses", middleware.RequireAnyRole([]string{constant.RoleManager}), h.GetAllMyNurses)
+	api.GET("users/me/cashing_officers", middleware.RequireAnyRole([]string{constant.RoleManager}), h.GetAllMyCashingOfficers)
 	api.GET("users/me/staffs/:id", middleware.RequireAnyRole([]string{constant.RoleManager}), h.GetMyStaffByUID)
 }
