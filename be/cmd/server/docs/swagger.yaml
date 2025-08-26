@@ -87,6 +87,66 @@ definitions:
     - department
     - role
     type: object
+  dto.UpdateCashingOfficerRequest:
+    properties:
+      department:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.UpdateDoctorRequest:
+    properties:
+      department:
+        type: string
+      medical_license_number:
+        type: string
+      specialization:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.UpdateManagerRequest:
+    properties:
+      department:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.UpdateNurseRequest:
+    properties:
+      department:
+        type: string
+      nursing_license_number:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.UpdatePatientRequest:
+    properties:
+      allergies:
+        type: string
+      blood_type:
+        type: string
+      chronic_conditions:
+        type: string
+      insurance_number:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.UpdateUserRequest:
+    properties:
+      address:
+        type: string
+      date_of_birth:
+        type: string
+      gender:
+        type: string
+      phone_number:
+        type: string
+      refresh_token:
+        type: string
+    type: object
   dto.UserInfoRequest:
     properties:
       address:
@@ -224,7 +284,152 @@ paths:
       summary: Register new user
       tags:
       - Auth
-  /api/users/managers/{id}:
+  /api/cashing-officer/{uid}:
+    patch:
+      consumes:
+      - application/json
+      description: Update cashing officer profile
+      parameters:
+      - description: New information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCashingOfficerRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Update cashing officer profile
+      tags:
+      - User
+  /api/doctors/{uid}:
+    patch:
+      consumes:
+      - application/json
+      description: Update doctor profile
+      parameters:
+      - description: New information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateDoctorRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Update doctor profile
+      tags:
+      - User
+  /api/managers/{uid}:
+    patch:
+      consumes:
+      - application/json
+      description: Update manager profile
+      parameters:
+      - description: New information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateManagerRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Update manager profile
+      tags:
+      - User
+  /api/nurses/{uid}:
+    patch:
+      consumes:
+      - application/json
+      description: Update nurse profile
+      parameters:
+      - description: New information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateNurseRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Update nurse profile
+      tags:
+      - User
+  /api/patients/{uid}:
+    patch:
+      consumes:
+      - application/json
+      description: Update patient profile
+      parameters:
+      - description: New information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePatientRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Update patient profile
+      tags:
+      - User
+  /api/users/managers/{uid}:
     delete:
       consumes:
       - application/json
@@ -275,7 +480,35 @@ paths:
       summary: Get current user information
       tags:
       - User
-  /api/users/me/cashing_officers:
+    patch:
+      consumes:
+      - application/json
+      description: Update current user profile
+      parameters:
+      - description: New information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Update current user profile
+      tags:
+      - User
+  /api/users/me/cashing-officers:
     get:
       consumes:
       - application/json
@@ -367,7 +600,7 @@ paths:
       summary: Get all patients for current doctor
       tags:
       - User
-  /api/users/me/patients/{id}:
+  /api/users/me/patients/{uid}:
     get:
       consumes:
       - application/json
@@ -418,7 +651,7 @@ paths:
       summary: Get all staffs for current manager
       tags:
       - User
-  /api/users/me/staffs/{id}:
+  /api/users/me/staffs/{uid}:
     delete:
       consumes:
       - application/json

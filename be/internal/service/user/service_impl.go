@@ -3,6 +3,7 @@ package user
 import (
 	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/dto"
+	"BE_Hospital_Management/internal/domain/entity"
 	appointmentRepository "BE_Hospital_Management/internal/repository/appointment"
 	doctorRepository "BE_Hospital_Management/internal/repository/doctor"
 	managerRepository "BE_Hospital_Management/internal/repository/manager"
@@ -43,10 +44,6 @@ func NewUserService(repo userRepository.UserRepository, userRoleRepo userRoleRep
 	}
 }
 
-//	func (service *userService) GetAllUser() ([]*entity.User, error) {
-//		users, err := service.repo.GetAllUser()
-//		return users, err
-//	}
 func (service *userService) GetUserById(userId int64) (*dto.UserInfoResponse, error) {
 	user, err := service.repo.GetUserById(userId)
 	if err != nil {
@@ -407,23 +404,210 @@ func (service *userService) DeleteStaffByUID(staffUID, managerUID int64) error {
 	return err
 }
 
-//func (service *userService) UpdateUser(userId int64, email string, password string) (*entity.User, error) {
-//	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-//	if err != nil {
-//		return nil, err
-//	}
-//	user := entity.User{Id: userId, Email: email, Password: string(hashedPassword)}
-//	var updatedUser *entity.User
-//	db := service.repo.GetDB()
-//	err = db.Transaction(func(tx *gorm.DB) error {
-//		updatedUser, err = service.repo.UpdateUser(tx, &user)
-//		return err
-//	})
-//	if errors.Is(err, gorm.ErrRecordNotFound) {
-//		return nil, ErrUserNotFound
-//	}
-//	if err != nil {
-//		return nil, err
-//	}
-//	return updatedUser, nil
-//}
+func (service *userService) UpdateUserProfile(userId int64, request *dto.UpdateUserRequest) (*entity.User, error) {
+	user := entity.User{
+		Id:          userId,
+		Name:        request.Name,
+		DateOfBirth: request.DateOfBirth,
+		PhoneNumber: request.PhoneNumber,
+		Address:     request.Address,
+		Gender:      request.Gender,
+	}
+	var updatedUser *entity.User
+	db := service.repo.GetDB()
+	var err error
+	err = db.Transaction(func(tx *gorm.DB) error {
+		updatedUser, err = service.repo.UpdateUser(tx, &user)
+		return err
+	})
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return updatedUser, nil
+}
+
+func (service *userService) UpdateManagerProfile(managerUID int64, request *dto.UpdateManagerRequest) (*entity.Manager, error) {
+	manager, err := service.managerRepo.GetManagerByUserId(managerUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	manager.Department = request.Department
+	manager.Status = request.Status
+	var updatedManager *entity.Manager
+	db := service.repo.GetDB()
+	err = db.Transaction(func(tx *gorm.DB) error {
+		updatedManager, err = service.managerRepo.UpdateManager(tx, manager)
+		return err
+	})
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return updatedManager, nil
+}
+
+func (service *userService) UpdateDoctorProfile(authUserId int64, doctorUID int64, request *dto.UpdateDoctorRequest) (*entity.Staff, error) {
+	staff, err := service.staffRepo.GetStaffsByUserIdWithInformation(doctorUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	if staff.ManageBy != authUserId {
+		return nil, ErrNotPermitted
+	}
+	updateStaff := &entity.Staff{
+		Id:         staff.Id,
+		Department: request.Department,
+		Status:     request.Status,
+	}
+	updateDoctor := &entity.Doctor{
+		Id:                   staff.Doctor.Id,
+		Specialization:       request.Specialization,
+		MedicalLicenseNumber: request.MedicalLicenseNumber,
+	}
+	var updatedStaff *entity.Staff
+	db := service.repo.GetDB()
+	err = db.Transaction(func(tx *gorm.DB) error {
+		updatedStaff, err = service.staffRepo.UpdateStaff(tx, updateStaff)
+		if err != nil {
+			return err
+		}
+		updatedStaff.Doctor, err = service.doctorRepo.UpdateDoctor(tx, updateDoctor)
+		return err
+	})
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return updatedStaff, nil
+}
+
+func (service *userService) UpdateNurseProfile(authUserId int64, nurseUID int64, request *dto.UpdateNurseRequest) (*entity.Staff, error) {
+	staff, err := service.staffRepo.GetStaffsByUserIdWithInformation(nurseUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	if staff.ManageBy != authUserId {
+		return nil, ErrNotPermitted
+	}
+	updateStaff := &entity.Staff{
+		Id:         staff.Id,
+		Department: request.Department,
+		Status:     request.Status,
+	}
+	updateNurse := &entity.Nurse{
+		Id:                   staff.Doctor.Id,
+		NursingLicenseNumber: request.NursingLicenseNumber,
+	}
+	var updatedStaff *entity.Staff
+	db := service.repo.GetDB()
+	err = db.Transaction(func(tx *gorm.DB) error {
+		updatedStaff, err = service.staffRepo.UpdateStaff(tx, updateStaff)
+		if err != nil {
+			return err
+		}
+		updatedStaff.Nurse, err = service.nurseRepo.UpdateNurse(tx, updateNurse)
+		return err
+	})
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return updatedStaff, nil
+}
+
+func (service *userService) UpdateCashingOfficerProfile(authUserId int64, cashingOfficerUID int64, request *dto.UpdateCashingOfficerRequest) (*entity.Staff, error) {
+	staff, err := service.staffRepo.GetStaffsByUserIdWithInformation(cashingOfficerUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	if staff.ManageBy != authUserId {
+		return nil, ErrNotPermitted
+	}
+	updateStaff := &entity.Staff{
+		Id:         staff.Id,
+		Department: request.Department,
+		Status:     request.Status,
+	}
+	var updatedStaff *entity.Staff
+	db := service.repo.GetDB()
+	err = db.Transaction(func(tx *gorm.DB) error {
+		updatedStaff, err = service.staffRepo.UpdateStaff(tx, updateStaff)
+		return err
+	})
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return updatedStaff, nil
+}
+
+func (service *userService) UpdatePatientProfile(authUserId int64, patientUID int64, request *dto.UpdatePatientRequest) (*entity.Patient, error) {
+	patient, err := service.patientRepo.GetPatientByUserId(patientUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	staff, err := service.staffRepo.GetStaffByUserId(authUserId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	if staff.Doctor == nil {
+		return nil, ErrNotPermitted
+	}
+	_, err = service.appointmentRepo.GetAppointmentByPatientIdAndDoctorId(patient.Id, staff.Doctor.Id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrNotPermitted
+		}
+		return nil, err
+	}
+	updatePatient := &entity.Patient{
+		Id:                patient.Id,
+		InsuranceNumber:   &request.InsuranceNumber,
+		BloodType:         &request.BloodType,
+		Allergies:         &request.Allergies,
+		ChronicConditions: &request.ChronicConditions,
+		Status:            request.Status,
+	}
+	var updatedPatient *entity.Patient
+	db := service.repo.GetDB()
+	err = db.Transaction(func(tx *gorm.DB) error {
+		updatedPatient, err = service.patientRepo.UpdatePatient(tx, updatePatient)
+		return err
+	})
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return updatedPatient, nil
+}
