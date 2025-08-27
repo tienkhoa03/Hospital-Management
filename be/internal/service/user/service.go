@@ -2,6 +2,7 @@ package user
 
 import (
 	"BE_Hospital_Management/internal/domain/dto"
+	"BE_Hospital_Management/internal/domain/entity"
 	"errors"
 )
 
@@ -24,5 +25,10 @@ type UserService interface {
 	GetAllCashingOfficersByManagerUID(managerUID int64) ([]*dto.UserInfoResponse, error)
 	DeleteManagerByUID(managerUID int64) error
 	DeleteStaffByUID(staffUID, managerUID int64) error
-	//UpdateUser(userId int64, email string, password string) (*entity.User, error)
+	UpdateUserProfile(userId int64, request *dto.UpdateUserRequest) (*entity.User, error)
+	UpdateManagerProfile(managerUID int64, request *dto.UpdateManagerRequest) (*entity.Manager, error)
+	UpdateDoctorProfile(authUserId int64, doctorUID int64, request *dto.UpdateDoctorRequest) (*entity.Staff, error)
+	UpdateNurseProfile(authUserId int64, nurseUID int64, request *dto.UpdateNurseRequest) (*entity.Staff, error)
+	UpdateCashingOfficerProfile(authUserId int64, cashingOfficerUID int64, request *dto.UpdateCashingOfficerRequest) (*entity.Staff, error)
+	UpdatePatientProfile(authUserId int64, patientUID int64, request *dto.UpdatePatientRequest) (*entity.Patient, error)
 }
