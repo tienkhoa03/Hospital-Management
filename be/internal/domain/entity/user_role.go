@@ -11,10 +11,3 @@ type UserRole struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
-
-const (
-	RoleAdmin   = "admin"
-	RoleManager = "manager"
-	RoleStaff   = "staff"
-	RolePatient = "patient"
-)

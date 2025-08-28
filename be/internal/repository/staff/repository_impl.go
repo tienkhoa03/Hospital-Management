@@ -1,6 +1,7 @@
 package staff
 
 import (
+	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/entity"
 
 	"gorm.io/gorm"
@@ -29,7 +30,7 @@ func (r *PostgreSQLStaffRepository) GetAllStaff() ([]*entity.Staff, error) {
 
 func (r *PostgreSQLStaffRepository) GetStaffById(staffId int64) (*entity.Staff, error) {
 	var staff = entity.Staff{}
-	result := r.db.Model(&entity.Staff{}).Where("id = ?", staffId).First(&staff)
+	result := r.db.Model(&entity.Staff{}).Preload("Role").Where("id = ?", staffId).First(&staff)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -38,7 +39,7 @@ func (r *PostgreSQLStaffRepository) GetStaffById(staffId int64) (*entity.Staff, 
 
 func (r *PostgreSQLStaffRepository) GetStaffsFromIds(staffIds []int64) ([]*entity.Staff, error) {
 	var staffs []*entity.Staff
-	result := r.db.Model(&entity.Staff{}).Where("id IN ?", staffIds).Find(&staffs)
+	result := r.db.Model(&entity.Staff{}).Preload("Role").Where("id IN ?", staffIds).Find(&staffs)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -47,7 +48,24 @@ func (r *PostgreSQLStaffRepository) GetStaffsFromIds(staffIds []int64) ([]*entit
 
 func (r *PostgreSQLStaffRepository) GetStaffByUserId(userId int64) (*entity.Staff, error) {
 	var staff = entity.Staff{}
-	result := r.db.Model(&entity.Staff{}).Where("user_id = ?", userId).First(&staff)
+	result := r.db.Model(&entity.Staff{}).Preload("Role").Where("user_id = ?", userId).First(&staff)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &staff, nil
+}
+
+func (r *PostgreSQLStaffRepository) GetStaffsByManagerIdWithInformation(managerId int64) ([]*entity.Staff, error) {
+	var staffs []*entity.Staff
+	result := r.db.Model(&entity.Staff{}).Joins("User").Joins("Nurse").Joins("Doctor").Preload("Role").Where("manage_by = ?", managerId).Find(&staffs)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return staffs, nil
+}
+func (r *PostgreSQLStaffRepository) GetStaffsByUserIdWithInformation(userId int64) (*entity.Staff, error) {
+	var staff entity.Staff
+	result := r.db.Model(&entity.Staff{}).Joins("User").Joins("Nurse").Joins("Doctor").Preload("Role").Where("user_id = ?", userId).First(&staff)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -62,8 +80,8 @@ func (r *PostgreSQLStaffRepository) CreateStaff(tx *gorm.DB, staff *entity.Staff
 	return staff, result.Error
 }
 
-func (r *PostgreSQLStaffRepository) DeleteStaffById(tx *gorm.DB, staffId int64) error {
-	result := tx.Model(&entity.Staff{}).Where("id = ?", staffId).Delete(entity.Staff{})
+func (r *PostgreSQLStaffRepository) DeleteStaffByUserId(tx *gorm.DB, staffUID int64) error {
+	result := tx.Model(&entity.Staff{}).Where("user_id = ?", staffUID).Update("status", constant.StaffStatusInactive)
 	return result.Error
 }
 

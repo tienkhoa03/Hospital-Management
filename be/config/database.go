@@ -1,10 +1,12 @@
 package config
 
 import (
+	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/entity"
+	"log"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 )
 
 var users = []entity.User{
@@ -18,28 +20,28 @@ var users = []entity.User{
 
 var userRoles = []entity.UserRole{
 	{
-		RoleSlug: "admin",
+		RoleSlug: constant.RoleAdmin,
 	},
 	{
-		RoleSlug: "manager",
+		RoleSlug: constant.RoleManager,
 	},
 	{
-		RoleSlug: "staff",
+		RoleSlug: constant.RoleStaff,
 	},
 	{
-		RoleSlug: "patient",
+		RoleSlug: constant.RolePatient,
 	},
 }
 
 var staffRoles = []entity.StaffRole{
 	{
-		RoleSlug: "doctor",
+		RoleSlug: constant.RoleDoctor,
 	},
 	{
-		RoleSlug: "nurse",
+		RoleSlug: constant.RoleNurse,
 	},
 	{
-		RoleSlug: "cashing_officer",
+		RoleSlug: constant.RoleCashingOfficer,
 	},
 }
 
@@ -136,7 +138,7 @@ func ConnectToDB() *gorm.DB {
 	`
 	db.Exec(createBillEnumSQL)
 
-	createPatientEnumSQL := `
+	createPatientStatusEnumSQL := `
 	DO $$
 	BEGIN
 		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'patient_status_slug') THEN
@@ -150,9 +152,9 @@ func ConnectToDB() *gorm.DB {
 	END
 	$$;
 	`
-	db.Exec(createPatientEnumSQL)
+	db.Exec(createPatientStatusEnumSQL)
 
-	createStaffEnumSQL := `
+	createStaffStatusEnumSQL := `
 	DO $$
 	BEGIN
 		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'staff_status_slug') THEN
@@ -165,7 +167,22 @@ func ConnectToDB() *gorm.DB {
 	END
 	$$;
 	`
-	db.Exec(createStaffEnumSQL)
+	db.Exec(createStaffStatusEnumSQL)
+
+	createManagerStatusEnumSQL := `
+	DO $$
+	BEGIN
+		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'manager_status_slug') THEN
+			CREATE TYPE manager_status_slug AS ENUM (
+				'working', 
+				'on_leave',
+				'inactive'
+			);
+		END IF;
+	END
+	$$;
+	`
+	db.Exec(createManagerStatusEnumSQL)
 
 	createBloodEnumSQL := `
 	DO $$

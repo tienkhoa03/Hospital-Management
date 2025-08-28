@@ -9,9 +9,7 @@ var (
 	ErrInvalidUserRole          = errors.New("invalid user role")
 	ErrInvalidStaffRole         = errors.New("invalid staff role")
 	ErrMissingPatientInfo       = errors.New("missing patient information")
-	ErrMissingDoctorInfo        = errors.New("missing doctor information")
 	ErrMissingManagerInfo       = errors.New("missing manager information")
-	ErrMissingNurseInfo         = errors.New("missing nurse information")
 	ErrMissingStaffInfo         = errors.New("missing staff information")
 	ErrAlreadyRegistered        = errors.New("email has already been registed")
 	ErrInvalidLoginRequest      = errors.New("email or password is incorrect")
@@ -23,10 +21,10 @@ var (
 	ErrUniqueConstraintViolated = errors.New("unique constraint violated")
 )
 
-//go:generate mockgen -source=interface.go -destination=../mock/mock_auth_service.go
+//go:generate mockgen -source=service.go -destination=../mock/mock_auth_service.go
 
 type AuthService interface {
-	RegisterUser(authUserId *int64, authUserRole *string, request dto.RegisterRequest) (*dto.RegisterResponse, error)
+	RegisterUser(authUserId *int64, authUserRole *string, request dto.UserInfoRequest) (*dto.UserInfoResponse, error)
 	Login(email, password string) (string, string, error)
 	RefreshAccessToken(rawRefreshToken string) (string, string, error)
 	Logout(rawRefreshToken string) error

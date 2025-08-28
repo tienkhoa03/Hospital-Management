@@ -36,6 +36,15 @@ func (r *PostgreSQLDoctorRepository) GetDoctorById(doctorId int64) (*entity.Doct
 	return &doctor, nil
 }
 
+func (r *PostgreSQLDoctorRepository) GetDoctorByStaffId(staffId int64) (*entity.Doctor, error) {
+	var doctor = entity.Doctor{}
+	result := r.db.Model(&entity.Doctor{}).Where("staff_id = ?", staffId).First(&doctor)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &doctor, nil
+}
+
 func (r *PostgreSQLDoctorRepository) GetDoctorsFromIds(doctorIds []int64) ([]*entity.Doctor, error) {
 	var doctors []*entity.Doctor
 	result := r.db.Model(&entity.Doctor{}).Where("id IN ?", doctorIds).Find(&doctors)
@@ -51,11 +60,6 @@ func (r *PostgreSQLDoctorRepository) CreateDoctor(tx *gorm.DB, doctor *entity.Do
 		return nil, result.Error
 	}
 	return doctor, result.Error
-}
-
-func (r *PostgreSQLDoctorRepository) DeleteDoctorById(tx *gorm.DB, doctorId int64) error {
-	result := tx.Model(&entity.Doctor{}).Where("id = ?", doctorId).Delete(entity.Doctor{})
-	return result.Error
 }
 
 func (r *PostgreSQLDoctorRepository) UpdateDoctor(tx *gorm.DB, doctor *entity.Doctor) (*entity.Doctor, error) {

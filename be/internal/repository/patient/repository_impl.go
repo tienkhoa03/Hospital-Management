@@ -1,6 +1,7 @@
 package patient
 
 import (
+	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/entity"
 
 	"gorm.io/gorm"
@@ -36,9 +37,45 @@ func (r *PostgreSQLPatientRepository) GetPatientById(patientId int64) (*entity.P
 	return &patient, nil
 }
 
+func (r *PostgreSQLPatientRepository) GetPatientByIdWithUserInfo(patientId int64) (*entity.Patient, error) {
+	var patient = entity.Patient{}
+	result := r.db.Model(&entity.Patient{}).Preload("User").Where("id = ?", patientId).First(&patient)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &patient, nil
+}
+
+func (r *PostgreSQLPatientRepository) GetPatientByUserId(userId int64) (*entity.Patient, error) {
+	var patient = entity.Patient{}
+	result := r.db.Model(&entity.Patient{}).Where("user_id = ?", userId).First(&patient)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &patient, nil
+}
+
+func (r *PostgreSQLPatientRepository) GetPatientByUserIdWithUserInfo(userId int64) (*entity.Patient, error) {
+	var patient = entity.Patient{}
+	result := r.db.Model(&entity.Patient{}).Preload("User").Where("user_id = ?", userId).First(&patient)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &patient, nil
+}
+
 func (r *PostgreSQLPatientRepository) GetPatientsFromIds(patientIds []int64) ([]*entity.Patient, error) {
 	var patients []*entity.Patient
 	result := r.db.Model(&entity.Patient{}).Where("id IN ?", patientIds).Find(&patients)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return patients, nil
+}
+
+func (r *PostgreSQLPatientRepository) GetPatientsFromIdsWithUserInfo(patientIds []int64) ([]*entity.Patient, error) {
+	var patients []*entity.Patient
+	result := r.db.Model(&entity.Patient{}).Preload("User").Where("id IN ?", patientIds).Find(&patients)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -53,8 +90,8 @@ func (r *PostgreSQLPatientRepository) CreatePatient(tx *gorm.DB, patient *entity
 	return patient, result.Error
 }
 
-func (r *PostgreSQLPatientRepository) DeletePatientById(tx *gorm.DB, patientId int64) error {
-	result := tx.Model(&entity.Patient{}).Where("id = ?", patientId).Delete(entity.Patient{})
+func (r *PostgreSQLPatientRepository) DeletePatientByUserId(tx *gorm.DB, patientUID int64) error {
+	result := tx.Model(&entity.Patient{}).Where("id = ?", patientUID).Update("status", constant.PatientStatusInactive)
 	return result.Error
 }
 
