@@ -6,7 +6,7 @@ import (
 	"errors"
 )
 
-//go:generate mockgen -source=interface.go -destination=../mock/mock_user_service.go
+//go:generate mockgen -source=service.go -destination=../mock/mock_user_service.go
 
 var (
 	ErrUserNotFound = errors.New("user not found")

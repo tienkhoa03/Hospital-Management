@@ -9,6 +9,7 @@ import (
 	"BE_Hospital_Management/internal/repository/patient"
 	"BE_Hospital_Management/internal/repository/staff"
 	"BE_Hospital_Management/internal/repository/staff_role"
+	"BE_Hospital_Management/internal/repository/task"
 	"BE_Hospital_Management/internal/repository/user"
 	"BE_Hospital_Management/internal/repository/user_role"
 
@@ -26,6 +27,7 @@ type Repository struct {
 	Staff       staff.StaffRepository
 	User        user.UserRepository
 	Appointment appointment.AppointmentRepository
+	Task        task.TaskRepository
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -40,5 +42,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		Staff:       staff.NewStaffRepository(db),
 		User:        user.NewUserRepository(db),
 		Appointment: appointment.NewAppointmentRepository(db),
+		Task:        task.NewTaskRepository(db),
 	}
 }

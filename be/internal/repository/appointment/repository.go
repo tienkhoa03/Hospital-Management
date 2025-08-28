@@ -3,6 +3,7 @@ package appointment
 import (
 	"BE_Hospital_Management/internal/domain/entity"
 	"gorm.io/gorm"
+	"time"
 )
 
 //go:generate mockgen -source=repository.go -destination=../mock/mock_appointment_repository.go
@@ -17,4 +18,5 @@ type AppointmentRepository interface {
 	GetAppointmentsFromIds(appointmentIds []int64) ([]*entity.Appointment, error)
 	UpdateAppointment(tx *gorm.DB, appointment *entity.Appointment) (*entity.Appointment, error)
 	DeleteAppointmentById(tx *gorm.DB, appointmentId int64) error
+	ExistsOverlapAppointmentOfDoctor(doctorId int64, beginTime, endTime time.Time) (bool, error)
 }

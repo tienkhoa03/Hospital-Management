@@ -15,9 +15,6 @@ func SetupRoutes(r *gin.Engine, handlers *handler.Handlers, db *gorm.DB) {
 	api := r.Group("/api")
 	authApi := r.Group("/api")
 	registerUserRoutes(api, handlers.User, db)
-	//registerFriendshipRoutes(api, handlers.Friendship, db)
-	//registerSubscriptionRoutes(api, handlers.Subscription, db)
-	//registerBlockRoutes(api, handlers.BlockRelationship, db)
-	//registerNotificationRoutes(api, handlers.NotificationHandler, db)
+	registerStaffManagementRoutes(api, handlers.StaffManagement, db)
 	registerAuthRoutes(authApi, handlers.Auth, db)
 }
