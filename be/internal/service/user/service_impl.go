@@ -15,7 +15,6 @@ import (
 	userRoleRepository "BE_Hospital_Management/internal/repository/user_role"
 	"BE_Hospital_Management/pkg/utils"
 	"errors"
-
 	"gorm.io/gorm"
 )
 
@@ -45,10 +44,6 @@ func NewUserService(repo userRepository.UserRepository, userRoleRepo userRoleRep
 	}
 }
 
-//	func (service *userService) GetAllUser() ([]*entity.User, error) {
-//		users, err := service.repo.GetAllUser()
-//		return users, err
-//	}
 func (service *userService) GetUserById(userId int64) (*dto.UserInfoResponse, error) {
 	user, err := service.repo.GetUserById(userId)
 	if err != nil {
