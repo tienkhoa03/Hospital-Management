@@ -1,6 +1,7 @@
 package task
 
 import (
+	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/entity"
 	"time"
 
@@ -37,13 +38,31 @@ func (r *PostgreSQLTaskRepository) GetTaskById(taskId int64) (*entity.Task, erro
 	return &task, nil
 }
 
-func (r *PostgreSQLTaskRepository) GetTaskByStaffId(staffId int64) (*entity.Task, error) {
-	var task = entity.Task{}
-	result := r.db.Model(&entity.Task{}).Where("staff_id = ?", staffId).First(&task)
+func (r *PostgreSQLTaskRepository) GetTasksByStaffId(staffId int64) ([]*entity.Task, error) {
+	var tasks []*entity.Task
+	result := r.db.Model(&entity.Task{}).Where("staff_id = ?", staffId).Find(&tasks)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return &task, nil
+	return tasks, nil
+}
+
+func (r *PostgreSQLTaskRepository) GetTasksByManagerId(managerId int64) ([]*entity.Task, error) {
+	var tasks []*entity.Task
+	result := r.db.Model(&entity.Task{}).Where("assigner_id = ?", managerId).Find(&tasks)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return tasks, nil
+}
+
+func (r *PostgreSQLTaskRepository) GetTasksByManagerIdAndStaffId(managerId, staffId int64) ([]*entity.Task, error) {
+	var tasks []*entity.Task
+	result := r.db.Model(&entity.Task{}).Where("assigner_id = ? AND staff_id = ?", managerId, staffId).Find(&tasks)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return tasks, nil
 }
 
 func (r *PostgreSQLTaskRepository) GetTasksFromIds(taskIds []int64) ([]*entity.Task, error) {
@@ -78,7 +97,7 @@ func (r *PostgreSQLTaskRepository) UpdateTask(tx *gorm.DB, task *entity.Task) (*
 
 func (r *PostgreSQLTaskRepository) ExistsOverlapTaskOfStaff(staffId int64, beginTime, endTime time.Time) (bool, error) {
 	var task entity.Task
-	err := r.db.Where("staff_id = ?", staffId).Where("end_time > ? AND begin_time < ?", beginTime, endTime).Limit(1).Take(&task).Error
+	err := r.db.Where("staff_id = ?", staffId).Where("finish_time > ? AND begin_time < ?", beginTime, endTime).Limit(1).Take(&task).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return false, nil
@@ -86,4 +105,9 @@ func (r *PostgreSQLTaskRepository) ExistsOverlapTaskOfStaff(staffId int64, begin
 		return false, err
 	}
 	return true, nil
+}
+
+func (r *PostgreSQLTaskRepository) DeleteTaskById(tx *gorm.DB, taskId int64) error {
+	result := tx.Model(&entity.Task{}).Where("id = ?", taskId).Update("status", constant.TaskStatusCanceled)
+	return result.Error
 }

@@ -17,4 +17,5 @@ func SetupRoutes(r *gin.Engine, handlers *handler.Handlers, db *gorm.DB) {
 	registerUserRoutes(api, handlers.User, db)
 	registerStaffManagementRoutes(api, handlers.StaffManagement, db)
 	registerAuthRoutes(authApi, handlers.Auth, db)
+	registerAppointmentRoutes(api, handlers.Appointment, db)
 }

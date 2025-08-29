@@ -1,0 +1,136 @@
+package appointment
+
+import (
+	"BE_Hospital_Management/constant"
+	"BE_Hospital_Management/internal/domain/dto"
+	"BE_Hospital_Management/internal/domain/entity"
+	appointmentRepository "BE_Hospital_Management/internal/repository/appointment"
+	doctorRepository "BE_Hospital_Management/internal/repository/doctor"
+	managerRepository "BE_Hospital_Management/internal/repository/manager"
+	nurseRepository "BE_Hospital_Management/internal/repository/nurse"
+	patientRepository "BE_Hospital_Management/internal/repository/patient"
+	staffRepository "BE_Hospital_Management/internal/repository/staff"
+	staffRoleRepository "BE_Hospital_Management/internal/repository/staff_role"
+	taskRepository "BE_Hospital_Management/internal/repository/task"
+	userRepository "BE_Hospital_Management/internal/repository/user"
+	userRoleRepository "BE_Hospital_Management/internal/repository/user_role"
+	"BE_Hospital_Management/pkg/utils"
+	"errors"
+
+	"gorm.io/gorm"
+)
+
+type appointmentService struct {
+	userRepo        userRepository.UserRepository
+	patientRepo     patientRepository.PatientRepository
+	managerRepo     managerRepository.ManagerRepository
+	staffRepo       staffRepository.StaffRepository
+	doctorRepo      doctorRepository.DoctorRepository
+	nurseRepo       nurseRepository.NurseRepository
+	userRoleRepo    userRoleRepository.UserRoleRepository
+	staffRoleRepo   staffRoleRepository.StaffRoleRepository
+	taskRepo        taskRepository.TaskRepository
+	appointmentRepo appointmentRepository.AppointmentRepository
+}
+
+func NewAppointmentService(userRepo userRepository.UserRepository, userRoleRepo userRoleRepository.UserRoleRepository, doctorRepo doctorRepository.DoctorRepository, managerRepo managerRepository.ManagerRepository, nurseRepo nurseRepository.NurseRepository, staffRepo staffRepository.StaffRepository, patientRepo patientRepository.PatientRepository, staffRoleRepo staffRoleRepository.StaffRoleRepository, taskRepo taskRepository.TaskRepository, appointmentRepo appointmentRepository.AppointmentRepository) AppointmentService {
+	return &appointmentService{
+		userRepo:        userRepo,
+		userRoleRepo:    userRoleRepo,
+		doctorRepo:      doctorRepo,
+		managerRepo:     managerRepo,
+		nurseRepo:       nurseRepo,
+		staffRepo:       staffRepo,
+		patientRepo:     patientRepo,
+		staffRoleRepo:   staffRoleRepo,
+		taskRepo:        taskRepo,
+		appointmentRepo: appointmentRepo,
+	}
+}
+func (service *appointmentService) CreateAppointment(authUserId int64, authUserRole string, appointmentRequest *dto.AppointmentInfoRequest) (*entity.Appointment, error) {
+	if appointmentRequest.BeginTime.After(appointmentRequest.FinishTime) {
+		return nil, ErrInvalidTimeRange
+	}
+	if utils.CheckTimeInWorkingHours(appointmentRequest.BeginTime, appointmentRequest.FinishTime) == false {
+		return nil, ErrOutOfWorkingHours
+	}
+	if authUserRole == constant.RolePatient {
+		if appointmentRequest.DoctorUID == nil {
+			return nil, ErrMissingDoctorId
+		}
+		if appointmentRequest.PatientUID != nil {
+			if *appointmentRequest.PatientUID != authUserId {
+				return nil, ErrNotPermitted
+			}
+		}
+		appointmentRequest.PatientUID = &authUserId
+	} else if authUserRole == constant.RoleDoctor {
+		if appointmentRequest.PatientUID == nil {
+			return nil, ErrMissingPatientId
+		}
+		if appointmentRequest.DoctorUID != nil {
+			if *appointmentRequest.DoctorUID != authUserId {
+				return nil, ErrNotPermitted
+			}
+		}
+		appointmentRequest.DoctorUID = &authUserId
+	}
+	var newAppointment *entity.Appointment
+	db := service.staffRepo.GetDB()
+	err := db.Transaction(func(tx *gorm.DB) error {
+		err := utils.AdvisoryLock(tx, utils.NamespaceStaffSchedule, *appointmentRequest.DoctorUID)
+		if err != nil {
+			return err
+		}
+		staff, err := service.staffRepo.GetStaffByUserId(*appointmentRequest.DoctorUID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrUserNotFound
+			}
+		}
+		existsOverlapTask, err := service.taskRepo.ExistsOverlapTaskOfStaff(staff.Id, appointmentRequest.BeginTime, appointmentRequest.FinishTime)
+		if err != nil {
+			return err
+		}
+		if existsOverlapTask {
+			return ErrExistsOverlapTask
+		}
+		doctor, err := service.doctorRepo.GetDoctorByStaffId(staff.Id)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrUserNotFound
+			}
+			return err
+		}
+		existsOverlapAppointment, err := service.appointmentRepo.ExistsOverlapAppointmentOfDoctor(doctor.Id, appointmentRequest.BeginTime, appointmentRequest.FinishTime)
+		if err != nil {
+			return err
+		}
+		if existsOverlapAppointment {
+			return ErrExistsOverlapAppointment
+		}
+		patient, err := service.patientRepo.GetPatientByUserId(*appointmentRequest.PatientUID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrUserNotFound
+			}
+			return err
+		}
+		appointment := &entity.Appointment{
+			PatientId:  patient.Id,
+			DoctorId:   doctor.Id,
+			BeginTime:  appointmentRequest.BeginTime,
+			FinishTime: appointmentRequest.FinishTime,
+			Status:     appointmentRequest.Status,
+		}
+		newAppointment, err = service.appointmentRepo.CreateAppointment(tx, appointment)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return newAppointment, nil
+}
