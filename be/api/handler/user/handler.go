@@ -41,6 +41,7 @@ func (h *UserHandler) GetCurrentUser(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when getting current user. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	userInfo, err := h.service.GetUserById(*authUserId)
 	if err != nil {
@@ -74,6 +75,7 @@ func (h *UserHandler) GetAllMyPatients(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when getting patients. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	userInfo, err := h.service.GetAllPatientsByDoctorUID(*authUserId)
 	if err != nil {
@@ -110,6 +112,7 @@ func (h *UserHandler) GetMyPatientByUID(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when getting patient's information. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	patientUIDStr := c.Param("uid")
 	patientUID, err := strconv.ParseInt(patientUIDStr, 10, 64)
@@ -151,6 +154,7 @@ func (h *UserHandler) GetAllMyStaffs(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when getting staffs. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	userInfo, err := h.service.GetAllStaffsByManagerUID(*authUserId)
 	if err != nil {
@@ -186,6 +190,7 @@ func (h *UserHandler) GetAllMyDoctors(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when getting doctors. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	userInfo, err := h.service.GetAllDoctorsByManagerUID(*authUserId)
 	if err != nil {
@@ -221,6 +226,7 @@ func (h *UserHandler) GetAllMyNurses(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when getting nurses. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	userInfo, err := h.service.GetAllNursesByManagerUID(*authUserId)
 	if err != nil {
@@ -256,6 +262,7 @@ func (h *UserHandler) GetAllMyCashingOfficers(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when getting cashing officers. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	userInfo, err := h.service.GetAllCashingOfficersByManagerUID(*authUserId)
 	if err != nil {
@@ -292,6 +299,7 @@ func (h *UserHandler) GetMyStaffByUID(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when getting staff's information. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	staffUIDStr := c.Param("uid")
 	staffUID, err := strconv.ParseInt(staffUIDStr, 10, 64)
@@ -371,6 +379,7 @@ func (h *UserHandler) DeleteStaffByUID(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when deleting staff. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	staffUIDStr := c.Param("uid")
 	staffUID, err := strconv.ParseInt(staffUIDStr, 10, 64)
@@ -413,6 +422,7 @@ func (h *UserHandler) UpdateMyProfile(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when updating user profile. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	var request dto.UpdateUserRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -492,6 +502,7 @@ func (h *UserHandler) UpdateDoctorProfile(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when updating doctor profile. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	doctorUIDStr := c.Param("uid")
 	doctorUID, err := strconv.ParseInt(doctorUIDStr, 10, 64)
@@ -539,6 +550,7 @@ func (h *UserHandler) UpdateNurseProfile(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when updating nurse profile. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	nurseUIDStr := c.Param("uid")
 	nurseUID, err := strconv.ParseInt(nurseUIDStr, 10, 64)
@@ -586,6 +598,7 @@ func (h *UserHandler) UpdateCashingOfficerProfile(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when updating cashing officer profile. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	cashingOfficerUIDStr := c.Param("uid")
 	cashingOfficerUID, err := strconv.ParseInt(cashingOfficerUIDStr, 10, 64)
@@ -633,6 +646,7 @@ func (h *UserHandler) UpdatePatientProfile(c *gin.Context) {
 	if authUserId == nil {
 		log.Error("Happened error when updating patient profile. Error: ", "Missing user ID in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
 	}
 	patientUIDStr := c.Param("uid")
 	patientUID, err := strconv.ParseInt(patientUIDStr, 10, 64)

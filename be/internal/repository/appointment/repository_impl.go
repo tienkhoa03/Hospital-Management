@@ -92,7 +92,7 @@ func (r *PostgreSQLAppointmentRepository) UpdateAppointment(tx *gorm.DB, appoint
 
 func (r *PostgreSQLAppointmentRepository) ExistsOverlapAppointmentOfDoctor(doctorId int64, beginTime, endTime time.Time) (bool, error) {
 	var appointment entity.Appointment
-	err := r.db.Where("doctor_id = ?", doctorId).Where("end_time > ? AND begin_time < ?", beginTime, endTime).Limit(1).Take(&appointment).Error
+	err := r.db.Where("doctor_id = ?", doctorId).Where("finish_time > ? AND begin_time < ?", beginTime, endTime).Limit(1).Take(&appointment).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return false, nil

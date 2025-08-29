@@ -47,9 +47,12 @@ func NewStaffManagementService(userRepo userRepository.UserRepository, userRoleR
 		appointmentRepo: appointmentRepo,
 	}
 }
-func (service *staffManagementService) AssignTask(authUserId int64, staffUID int64, taskRequest *dto.TaskInfoRequest) (*entity.Task, error) {
+func (service *staffManagementService) CreateTask(managerId int64, staffUID int64, taskRequest *dto.TaskInfoRequest) (*entity.Task, error) {
 	if taskRequest.BeginTime.After(taskRequest.FinishTime) {
 		return nil, ErrInvalidTimeRange
+	}
+	if utils.CheckTimeInWorkingHours(taskRequest.BeginTime, taskRequest.FinishTime) == false {
+		return nil, ErrOutOfWorkingHours
 	}
 	var newTask *entity.Task
 	db := service.staffRepo.GetDB()
@@ -69,7 +72,7 @@ func (service *staffManagementService) AssignTask(authUserId int64, staffUID int
 			return err
 		}
 		if existsOverlapTask {
-			return ErrExistsOverlapAppointment
+			return ErrExistsOverlapTask
 		}
 		if staff.Role.RoleSlug == constant.RoleDoctor {
 			doctor, err := service.doctorRepo.GetDoctorByStaffId(staff.Id)
@@ -87,7 +90,7 @@ func (service *staffManagementService) AssignTask(authUserId int64, staffUID int
 				return ErrExistsOverlapAppointment
 			}
 		}
-		manager, err := service.managerRepo.GetManagerByUserId(authUserId)
+		manager, err := service.managerRepo.GetManagerByUserId(managerId)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return ErrUserNotFound
@@ -116,4 +119,119 @@ func (service *staffManagementService) AssignTask(authUserId int64, staffUID int
 		return nil, err
 	}
 	return newTask, nil
+}
+
+func (service *staffManagementService) GetTasksByStaffUID(staffUID int64) ([]*entity.Task, error) {
+	staff, err := service.staffRepo.GetStaffByUserId(staffUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	tasks, err := service.taskRepo.GetTasksByStaffId(staff.Id)
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
+}
+
+func (service *staffManagementService) GetTasksByManagerUID(managerUID int64) ([]*entity.Task, error) {
+	manager, err := service.managerRepo.GetManagerByUserId(managerUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	tasks, err := service.taskRepo.GetTasksByManagerId(manager.Id)
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
+}
+
+func (service *staffManagementService) GetTasksByMangerUIDAndStaffUID(managerUID, staffUID int64) ([]*entity.Task, error) {
+	manager, err := service.managerRepo.GetManagerByUserId(managerUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	staff, err := service.staffRepo.GetStaffByUserId(staffUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	if staff.ManageBy != manager.Id {
+		return nil, ErrNotPermitted
+	}
+	tasks, err := service.taskRepo.GetTasksByManagerIdAndStaffId(manager.Id, staff.Id)
+	if err != nil {
+		return nil, err
+	}
+	return tasks, nil
+}
+
+func (service *staffManagementService) GetTaskById(authUserId int64, authUserRole string, taskId int64) (*entity.Task, error) {
+	task, err := service.taskRepo.GetTaskById(taskId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrTaskNotFound
+		}
+		return nil, err
+	}
+	if authUserRole == constant.RoleManager {
+		manager, err := service.managerRepo.GetManagerByUserId(authUserId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		if task.AssignerId != manager.Id {
+			return nil, ErrNotPermitted
+		}
+	} else {
+		staff, err := service.staffRepo.GetStaffByUserId(authUserId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		if task.StaffId != staff.Id {
+			return nil, ErrNotPermitted
+		}
+	}
+	return task, nil
+}
+
+func (service *staffManagementService) DeleteTaskById(authUserId int64, taskId int64) error {
+	task, err := service.taskRepo.GetTaskById(taskId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrTaskNotFound
+		}
+		return err
+	}
+	manager, err := service.managerRepo.GetManagerByUserId(authUserId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrUserNotFound
+		}
+		return err
+	}
+	if task.AssignerId != manager.Id {
+		return ErrNotPermitted
+	}
+	db := service.staffRepo.GetDB()
+	err = db.Transaction(func(tx *gorm.DB) error {
+		err = service.taskRepo.DeleteTaskById(tx, taskId)
+		return err
+	})
+	return err
 }

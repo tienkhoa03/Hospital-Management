@@ -8,6 +8,20 @@ definitions:
         example: Success
         type: string
     type: object
+  dto.AppointmentInfoRequest:
+    properties:
+      begin_time:
+        type: string
+      doctor_uid:
+        type: integer
+      finish_time:
+        type: string
+      patient_uid:
+        type: integer
+      status:
+        default: scheduled
+        type: string
+    type: object
   dto.DoctorInfoRequest:
     properties:
       medical_license_number:
@@ -86,6 +100,20 @@ definitions:
     required:
     - department
     - role
+    type: object
+  dto.TaskInfoRequest:
+    properties:
+      begin_time:
+        type: string
+      description:
+        type: string
+      finish_time:
+        type: string
+      status:
+        default: scheduled
+        type: string
+      title:
+        type: string
     type: object
   dto.UpdateCashingOfficerRequest:
     properties:
@@ -190,6 +218,35 @@ info:
   title: Hospital Management API
   version: "1.0"
 paths:
+  /api/appointments:
+    post:
+      consumes:
+      - application/json
+      description: Create an appointment
+      parameters:
+      - description: Appointment information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AppointmentInfoRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Create an appointment
+      tags:
+      - Appointment
   /api/auth/login:
     post:
       consumes:
@@ -429,6 +486,168 @@ paths:
       summary: Update patient profile
       tags:
       - User
+  /api/staff-management/me/assigned-tasks:
+    get:
+      consumes:
+      - application/json
+      description: Get tasks assigned by current manager
+      parameters:
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get tasks assigned by current manager
+      tags:
+      - StaffManagement
+  /api/staff-management/me/tasks:
+    get:
+      consumes:
+      - application/json
+      description: Get tasks for current staff
+      parameters:
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get tasks for current staff
+      tags:
+      - StaffManagement
+  /api/staff-management/staffs/{uid}/tasks:
+    get:
+      consumes:
+      - application/json
+      description: Get tasks assigned by current manager to a specific staff
+      parameters:
+      - description: Staff UID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get tasks assigned by current manager to a specific staff
+      tags:
+      - StaffManagement
+    post:
+      consumes:
+      - application/json
+      description: Assign task to staff
+      parameters:
+      - description: Staff ID
+        in: path
+        name: uid
+        required: true
+        type: integer
+      - description: Task information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TaskInfoRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Assign task to staff
+      tags:
+      - StaffManagement
+  /api/staff-management/tasks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete task by Id
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Delete task by Id
+      tags:
+      - StaffManagement
+    get:
+      consumes:
+      - application/json
+      description: Get task by Id
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get task by Id
+      tags:
+      - StaffManagement
   /api/users/managers/{uid}:
     delete:
       consumes:

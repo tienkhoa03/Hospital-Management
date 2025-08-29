@@ -9,5 +9,5 @@ type TaskInfoRequest struct {
 	Description string    `json:"description"`
 	BeginTime   time.Time `json:"begin_time"`
 	FinishTime  time.Time `json:"finish_time"`
-	Status      string    `json:"status"`
+	Status      string    `json:"status" default:"scheduled"`
 }

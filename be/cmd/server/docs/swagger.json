@@ -11,6 +11,52 @@
         "version": "1.0"
     },
     "paths": {
+        "/api/appointments": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Create an appointment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Create an appointment",
+                "parameters": [
+                    {
+                        "description": "Appointment information",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.AppointmentInfoRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
         "/api/auth/login": {
             "post": {
                 "description": "Login",
@@ -373,6 +419,261 @@
                     {
                         "type": "string",
                         "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/staff-management/me/assigned-tasks": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get tasks assigned by current manager",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StaffManagement"
+                ],
+                "summary": "Get tasks assigned by current manager",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/staff-management/me/tasks": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get tasks for current staff",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StaffManagement"
+                ],
+                "summary": "Get tasks for current staff",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/staff-management/staffs/{uid}/tasks": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get tasks assigned by current manager to a specific staff",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StaffManagement"
+                ],
+                "summary": "Get tasks assigned by current manager to a specific staff",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Staff UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Assign task to staff",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StaffManagement"
+                ],
+                "summary": "Assign task to staff",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Staff ID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Task information",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.TaskInfoRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/staff-management/tasks/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get task by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StaffManagement"
+                ],
+                "summary": "Get task by Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Delete task by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StaffManagement"
+                ],
+                "summary": "Delete task by Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -843,6 +1144,27 @@
                 }
             }
         },
+        "dto.AppointmentInfoRequest": {
+            "type": "object",
+            "properties": {
+                "begin_time": {
+                    "type": "string"
+                },
+                "doctor_uid": {
+                    "type": "integer"
+                },
+                "finish_time": {
+                    "type": "string"
+                },
+                "patient_uid": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string",
+                    "default": "scheduled"
+                }
+            }
+        },
         "dto.DoctorInfoRequest": {
             "type": "object",
             "required": [
@@ -960,6 +1282,27 @@
                     "type": "string"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.TaskInfoRequest": {
+            "type": "object",
+            "properties": {
+                "begin_time": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "finish_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "default": "scheduled"
+                },
+                "title": {
                     "type": "string"
                 }
             }
