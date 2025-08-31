@@ -115,6 +115,17 @@ definitions:
       title:
         type: string
     type: object
+  dto.UpdateAppointmentRequest:
+    properties:
+      begin_time:
+        type: string
+      doctor_uid:
+        type: integer
+      finish_time:
+        type: string
+      status:
+        type: string
+    type: object
   dto.UpdateCashingOfficerRequest:
     properties:
       department:
@@ -245,6 +256,35 @@ paths:
       security:
       - JWT: []
       summary: Create an appointment
+      tags:
+      - Appointment
+  /api/appointments/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Update appointment time
+      parameters:
+      - description: Appointment time
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAppointmentRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Update appointment time
       tags:
       - Appointment
   /api/auth/login:

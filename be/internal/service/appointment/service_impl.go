@@ -134,3 +134,71 @@ func (service *appointmentService) CreateAppointment(authUserId int64, authUserR
 	}
 	return newAppointment, nil
 }
+
+func (service *appointmentService) UpdateAppointmentTime(patientUID, appointmentId int64, request *dto.UpdateAppointmentRequest) (*entity.Appointment, error) {
+	if request.BeginTime.After(request.FinishTime) {
+		return nil, ErrInvalidTimeRange
+	}
+	if utils.CheckTimeInWorkingHours(request.BeginTime, request.FinishTime) == false {
+		return nil, ErrOutOfWorkingHours
+	}
+	var updatedAppointment *entity.Appointment
+	db := service.staffRepo.GetDB()
+	err := db.Transaction(func(tx *gorm.DB) error {
+		err := utils.AdvisoryLock(tx, utils.NamespaceStaffSchedule, patientUID)
+		if err != nil {
+			return err
+		}
+		appointment, err := service.appointmentRepo.GetAppointmentById(appointmentId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrAppointmentNotFound
+			}
+			return err
+		}
+		patient, err := service.patientRepo.GetPatientByUserId(patientUID)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrUserNotFound
+			}
+			return err
+		}
+		if appointment.PatientId != patient.Id {
+			return ErrNotPermitted
+		}
+		doctor, err := service.doctorRepo.GetDoctorById(appointment.DoctorId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrUserNotFound
+			}
+			return err
+		}
+		existsOverlapTask, err := service.taskRepo.ExistsOverlapTaskOfStaff(doctor.StaffId, request.BeginTime, request.FinishTime)
+		if err != nil {
+			return err
+		}
+		if existsOverlapTask {
+			return ErrExistsOverlapTask
+		}
+		existsOverlapAppointment, err := service.appointmentRepo.ExistsOverlapAppointmentOfDoctor(doctor.Id, request.BeginTime, request.FinishTime)
+		if err != nil {
+			return err
+		}
+		if existsOverlapAppointment {
+			return ErrExistsOverlapAppointment
+		}
+		appointment.DoctorId = doctor.Id
+		appointment.BeginTime = request.BeginTime
+		appointment.FinishTime = request.FinishTime
+		appointment.Status = request.Status
+		updatedAppointment, err = service.appointmentRepo.UpdateAppointment(tx, appointment)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return updatedAppointment, nil
+}

@@ -8,6 +8,7 @@ import (
 	"BE_Hospital_Management/pkg/utils"
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -76,6 +77,66 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
 			pkg.PanicExeption(constant.InvalidRequest, err.Error())
 		default:
 			pkg.PanicExeption(constant.UnknownError, "Happened error when creating appointment.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, newAppointment))
+}
+
+// Appointment godoc
+// @Summary      Update appointment time
+// @Description  Update appointment time
+// @Tags         Appointment
+// @Accept 		json
+// @Produce      json
+// @Param		request	 	body		dto.UpdateAppointmentRequest		true	"Appointment time"
+// @param Authorization header string true "Authorization"
+// @Router       /api/appointments/{id} [PATCH]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserId(c)
+	if authUserId == nil {
+		log.Error("Happened error when updating appointment. Error: ", "Missing user ID in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
+	}
+	appointmentIdStr := c.Param("uid")
+	appointmentId, err := strconv.ParseInt(appointmentIdStr, 10, 64)
+	if err != nil {
+		log.Error("Happened error when converting Id to int64. Error: ", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Happened error when converting Id to int64")
+	}
+	var request dto.UpdateAppointmentRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Error("Happened error when mapping request. Error: ", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
+	}
+	newAppointment, err := h.service.UpdateAppointmentTime(*authUserId, appointmentId, &request)
+	if err != nil {
+		log.Error("Happened error when updating appointment. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		case errors.Is(err, service.ErrInvalidTimeRange):
+			pkg.PanicExeption(constant.InvalidRequest, err.Error())
+		case errors.Is(err, service.ErrExistsOverlapTask):
+			pkg.PanicExeption(constant.Conflict, err.Error())
+		case errors.Is(err, service.ErrExistsOverlapAppointment):
+			pkg.PanicExeption(constant.Conflict, err.Error())
+		case errors.Is(err, service.ErrMissingDoctorId):
+			pkg.PanicExeption(constant.InvalidRequest, err.Error())
+		case errors.Is(err, service.ErrMissingPatientId):
+			pkg.PanicExeption(constant.InvalidRequest, err.Error())
+		case errors.Is(err, service.ErrOutOfWorkingHours):
+			pkg.PanicExeption(constant.InvalidRequest, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when updating appointment.")
 		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, newAppointment))
