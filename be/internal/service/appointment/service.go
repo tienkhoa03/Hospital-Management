@@ -22,5 +22,6 @@ var (
 
 type AppointmentService interface {
 	CreateAppointment(authUserId int64, authUserRole string, appointmentRequest *dto.AppointmentInfoRequest) (*entity.Appointment, error)
-	UpdateAppointmentTime(patientUID, appointmentId int64, request *dto.UpdateAppointmentRequest) (*entity.Appointment, error)
+	UpdateAppointment(patientUID, appointmentId int64, request *dto.UpdateAppointmentRequest) (*entity.Appointment, error)
+	DeleteAppointment(requestorUID int64, requestorRole string, appointmentId int64) error
 }

@@ -1,6 +1,7 @@
 package appointment
 
 import (
+	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/entity"
 	"time"
 
@@ -73,7 +74,7 @@ func (r *PostgreSQLAppointmentRepository) CreateAppointment(tx *gorm.DB, appoint
 }
 
 func (r *PostgreSQLAppointmentRepository) DeleteAppointmentById(tx *gorm.DB, appointmentId int64) error {
-	result := tx.Model(&entity.Appointment{}).Where("id = ?", appointmentId).Delete(entity.Appointment{})
+	result := tx.Model(&entity.Appointment{}).Where("id = ?", appointmentId).Update("status", constant.AppointmentStatusCanceled)
 	return result.Error
 }
 

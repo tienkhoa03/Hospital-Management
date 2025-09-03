@@ -104,7 +104,7 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
 		return
 	}
-	appointmentIdStr := c.Param("uid")
+	appointmentIdStr := c.Param("id")
 	appointmentId, err := strconv.ParseInt(appointmentIdStr, 10, 64)
 	if err != nil {
 		log.Error("Happened error when converting Id to int64. Error: ", err)
@@ -115,7 +115,7 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 		log.Error("Happened error when mapping request. Error: ", err)
 		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
 	}
-	newAppointment, err := h.service.UpdateAppointmentTime(*authUserId, appointmentId, &request)
+	newAppointment, err := h.service.UpdateAppointment(*authUserId, appointmentId, &request)
 	if err != nil {
 		log.Error("Happened error when updating appointment. Error: ", err)
 		switch {
@@ -129,10 +129,6 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 			pkg.PanicExeption(constant.Conflict, err.Error())
 		case errors.Is(err, service.ErrExistsOverlapAppointment):
 			pkg.PanicExeption(constant.Conflict, err.Error())
-		case errors.Is(err, service.ErrMissingDoctorId):
-			pkg.PanicExeption(constant.InvalidRequest, err.Error())
-		case errors.Is(err, service.ErrMissingPatientId):
-			pkg.PanicExeption(constant.InvalidRequest, err.Error())
 		case errors.Is(err, service.ErrOutOfWorkingHours):
 			pkg.PanicExeption(constant.InvalidRequest, err.Error())
 		default:
@@ -140,4 +136,55 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, newAppointment))
+}
+
+// Appointment godoc
+// @Summary      Delete appointment
+// @Description  Delete appointment
+// @Tags         Appointment
+// @Accept 		json
+// @Produce      json
+// @Param		id	 	path		int		true	"Appointment id"
+// @param Authorization header string true "Authorization"
+// @Router       /api/appointments/{id} [DELETE]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserId(c)
+	if authUserId == nil {
+		log.Error("Happened error when deleting appointment. Error: ", "Missing user ID in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
+	}
+	authUserRole := utils.GetAuthUserRole(c)
+	if authUserRole == nil {
+		log.Error("Happened error when deleting appointment. Error: ", "Missing user role in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user role in context")
+		return
+	}
+	appointmentIdStr := c.Param("id")
+	appointmentId, err := strconv.ParseInt(appointmentIdStr, 10, 64)
+	if err != nil {
+		log.Error("Happened error when converting Id to int64. Error: ", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Happened error when converting Id to int64")
+	}
+	err = h.service.DeleteAppointment(*authUserId, *authUserRole, appointmentId)
+	if err != nil {
+		log.Error("Happened error when deleting appointment. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		case errors.Is(err, service.ErrOutOfWorkingHours):
+			pkg.PanicExeption(constant.InvalidRequest, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when deleting appointment.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccessNoData())
 }

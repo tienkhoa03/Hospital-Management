@@ -62,6 +62,48 @@ const docTemplate = `{
             }
         },
         "/api/appointments/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Delete appointment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Delete appointment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Appointment id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "security": [
                     {

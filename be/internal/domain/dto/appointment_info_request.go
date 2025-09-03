@@ -13,8 +13,8 @@ type AppointmentInfoRequest struct {
 }
 
 type UpdateAppointmentRequest struct {
-	DoctorUID  *int64    `json:"doctor_uid"`
-	BeginTime  time.Time `json:"begin_time"`
-	FinishTime time.Time `json:"finish_time"`
-	Status     string    `json:"status"`
+	DoctorUID  *int64     `json:"doctor_uid"`
+	BeginTime  *time.Time `json:"begin_time"`
+	FinishTime *time.Time `json:"finish_time"`
+	Status     *string    `json:"status"`
 }

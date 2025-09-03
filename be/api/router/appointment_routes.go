@@ -13,4 +13,5 @@ func registerAppointmentRoutes(api *gin.RouterGroup, h *appointment.AppointmentH
 	api.Use(middleware.ValidateAccessToken())
 	api.POST("/appointments", middleware.RequireAnyRole([]string{constant.RoleDoctor, constant.RolePatient}), h.CreateAppointment)
 	api.PATCH("/appointments/:id", middleware.RequireAnyRole([]string{constant.RolePatient}), h.UpdateAppointment)
+	api.DELETE("/appointments/:id", middleware.RequireAnyRole([]string{constant.RoleDoctor, constant.RolePatient}), h.DeleteAppointment)
 }

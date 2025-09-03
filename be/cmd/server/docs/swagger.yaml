@@ -259,6 +259,33 @@ paths:
       tags:
       - Appointment
   /api/appointments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete appointment
+      parameters:
+      - description: Appointment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Delete appointment
+      tags:
+      - Appointment
     patch:
       consumes:
       - application/json

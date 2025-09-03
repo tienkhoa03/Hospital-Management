@@ -16,7 +16,6 @@ import (
 	userRoleRepository "BE_Hospital_Management/internal/repository/user_role"
 	"BE_Hospital_Management/pkg/utils"
 	"errors"
-
 	"gorm.io/gorm"
 )
 
@@ -135,20 +134,10 @@ func (service *appointmentService) CreateAppointment(authUserId int64, authUserR
 	return newAppointment, nil
 }
 
-func (service *appointmentService) UpdateAppointmentTime(patientUID, appointmentId int64, request *dto.UpdateAppointmentRequest) (*entity.Appointment, error) {
-	if request.BeginTime.After(request.FinishTime) {
-		return nil, ErrInvalidTimeRange
-	}
-	if utils.CheckTimeInWorkingHours(request.BeginTime, request.FinishTime) == false {
-		return nil, ErrOutOfWorkingHours
-	}
+func (service *appointmentService) UpdateAppointment(patientUID, appointmentId int64, request *dto.UpdateAppointmentRequest) (*entity.Appointment, error) {
 	var updatedAppointment *entity.Appointment
 	db := service.staffRepo.GetDB()
 	err := db.Transaction(func(tx *gorm.DB) error {
-		err := utils.AdvisoryLock(tx, utils.NamespaceStaffSchedule, patientUID)
-		if err != nil {
-			return err
-		}
 		appointment, err := service.appointmentRepo.GetAppointmentById(appointmentId)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -156,6 +145,7 @@ func (service *appointmentService) UpdateAppointmentTime(patientUID, appointment
 			}
 			return err
 		}
+
 		patient, err := service.patientRepo.GetPatientByUserId(patientUID)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -166,31 +156,79 @@ func (service *appointmentService) UpdateAppointmentTime(patientUID, appointment
 		if appointment.PatientId != patient.Id {
 			return ErrNotPermitted
 		}
-		doctor, err := service.doctorRepo.GetDoctorById(appointment.DoctorId)
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return ErrUserNotFound
+
+		var doctor *entity.Doctor
+		var staff *entity.Staff
+		if request.DoctorUID != nil {
+			err = utils.AdvisoryLock(tx, utils.NamespaceStaffSchedule, *request.DoctorUID)
+			if err != nil {
+				return err
 			}
-			return err
+			staff, err = service.staffRepo.GetStaffByUserId(*request.DoctorUID)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return ErrUserNotFound
+				}
+				return err
+			}
+			doctor, err = service.doctorRepo.GetDoctorByStaffId(staff.Id)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return ErrUserNotFound
+				}
+				return err
+			}
+			appointment.DoctorId = doctor.Id
+		} else {
+			doctor, err = service.doctorRepo.GetDoctorById(appointment.DoctorId)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return ErrUserNotFound
+				}
+				return err
+			}
+			staff, err = service.staffRepo.GetStaffById(doctor.StaffId)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return ErrUserNotFound
+				}
+				return err
+			}
+			err = utils.AdvisoryLock(tx, utils.NamespaceStaffSchedule, staff.UserId)
+			if err != nil {
+				return err
+			}
 		}
-		existsOverlapTask, err := service.taskRepo.ExistsOverlapTaskOfStaff(doctor.StaffId, request.BeginTime, request.FinishTime)
+		if request.BeginTime != nil {
+			appointment.BeginTime = *request.BeginTime
+		}
+		if request.FinishTime != nil {
+			appointment.FinishTime = *request.FinishTime
+		}
+		if request.Status != nil {
+			appointment.Status = *request.Status
+		}
+
+		if appointment.BeginTime.After(appointment.FinishTime) {
+			return ErrInvalidTimeRange
+		}
+		if utils.CheckTimeInWorkingHours(appointment.BeginTime, appointment.FinishTime) == false {
+			return ErrOutOfWorkingHours
+		}
+		existsOverlapTask, err := service.taskRepo.ExistsOverlapTaskOfStaff(doctor.StaffId, appointment.BeginTime, appointment.FinishTime)
 		if err != nil {
 			return err
 		}
 		if existsOverlapTask {
 			return ErrExistsOverlapTask
 		}
-		existsOverlapAppointment, err := service.appointmentRepo.ExistsOverlapAppointmentOfDoctor(doctor.Id, request.BeginTime, request.FinishTime)
+		existsOverlapAppointment, err := service.appointmentRepo.ExistsOverlapAppointmentOfDoctor(doctor.Id, appointment.BeginTime, appointment.FinishTime)
 		if err != nil {
 			return err
 		}
 		if existsOverlapAppointment {
 			return ErrExistsOverlapAppointment
 		}
-		appointment.DoctorId = doctor.Id
-		appointment.BeginTime = request.BeginTime
-		appointment.FinishTime = request.FinishTime
-		appointment.Status = request.Status
 		updatedAppointment, err = service.appointmentRepo.UpdateAppointment(tx, appointment)
 		if err != nil {
 			return err
@@ -201,4 +239,54 @@ func (service *appointmentService) UpdateAppointmentTime(patientUID, appointment
 		return nil, err
 	}
 	return updatedAppointment, nil
+}
+
+func (service *appointmentService) DeleteAppointment(requestorUID int64, requestorRole string, appointmentId int64) error {
+	db := service.appointmentRepo.GetDB()
+	err := db.Transaction(func(tx *gorm.DB) error {
+		appointment, err := service.appointmentRepo.GetAppointmentById(appointmentId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrAppointmentNotFound
+			}
+			return err
+		}
+		appointmentDoctor, err := service.doctorRepo.GetDoctorById(appointment.DoctorId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrUserNotFound
+			}
+			return err
+		}
+		appointmentStaff, err := service.staffRepo.GetStaffById(appointmentDoctor.StaffId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrUserNotFound
+			}
+			return err
+		}
+		err = utils.AdvisoryLock(tx, utils.NamespaceStaffSchedule, appointmentStaff.UserId)
+		if requestorRole == constant.RolePatient {
+			appointmentPatient, err := service.patientRepo.GetPatientByUserId(appointment.PatientId)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return ErrUserNotFound
+				}
+				return err
+			}
+			if appointmentPatient.UserId != requestorUID {
+				return ErrNotPermitted
+			}
+
+		} else if requestorRole == constant.RoleDoctor {
+			if appointmentStaff.UserId != requestorUID {
+				return ErrNotPermitted
+			}
+		} else {
+			return ErrNotPermitted
+		}
+		err = service.appointmentRepo.DeleteAppointmentById(tx, appointmentId)
+		return err
+	})
+	return err
 }
