@@ -8,8 +8,7 @@ type Bill struct {
 	DoctorId         int64
 	CashingOfficerId *int64
 	MedicalRecordId  int64
-	Description      *string
-	TotalPrice       int
+	TotalPrice       float32
 	Status           string `gorm:"type:bill_status_slug;default:'unpaid'"`
 	CreatedAt        time.Time
 	UpdatedAt        time.Time

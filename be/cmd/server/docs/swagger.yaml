@@ -78,6 +78,15 @@ definitions:
       status:
         type: string
     type: object
+  dto.PrescriptionRequest:
+    properties:
+      amount:
+        type: integer
+      instruction:
+        type: string
+      medicine_id:
+        type: integer
+    type: object
   dto.RefreshRequest:
     properties:
       refresh_token:
@@ -113,6 +122,38 @@ definitions:
         default: scheduled
         type: string
       title:
+        type: string
+    type: object
+  dto.TreatmentPlanRequest:
+    properties:
+      appointment_id:
+        type: integer
+      diagnosis:
+        type: string
+      medical_services:
+        type: string
+      note:
+        type: string
+      patient_uid:
+        type: integer
+      prescriptions:
+        items:
+          $ref: '#/definitions/dto.PrescriptionRequest'
+        type: array
+      symptom:
+        type: string
+      treatment:
+        type: string
+    type: object
+  dto.UpdateAppointmentRequest:
+    properties:
+      begin_time:
+        type: string
+      doctor_uid:
+        type: integer
+      finish_time:
+        type: string
+      status:
         type: string
     type: object
   dto.UpdateCashingOfficerRequest:
@@ -219,6 +260,28 @@ info:
   version: "1.0"
 paths:
   /api/appointments:
+    get:
+      consumes:
+      - application/json
+      description: Get all appointments of current user
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all appointments of current user
+      tags:
+      - Appointment
     post:
       consumes:
       - application/json
@@ -245,6 +308,160 @@ paths:
       security:
       - JWT: []
       summary: Create an appointment
+      tags:
+      - Appointment
+  /api/appointments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete appointment
+      parameters:
+      - description: Appointment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Delete appointment
+      tags:
+      - Appointment
+    get:
+      consumes:
+      - application/json
+      description: Get appointment by id
+      parameters:
+      - description: Appointment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get appointment by id
+      tags:
+      - Appointment
+    patch:
+      consumes:
+      - application/json
+      description: Update appointment time
+      parameters:
+      - description: Appointment time
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAppointmentRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Update appointment time
+      tags:
+      - Appointment
+  /api/appointments/availability:
+    get:
+      consumes:
+      - application/json
+      description: Get available slots of doctor
+      parameters:
+      - description: Doctor ID
+        in: query
+        name: doctorUID
+        required: true
+        type: integer
+      - description: 'Date (format: 2006-01-02)'
+        in: query
+        name: date
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get available slots of doctor
+      tags:
+      - Appointment
+  /api/appointments/availability/check:
+    get:
+      consumes:
+      - application/json
+      description: Get available slots of doctor
+      parameters:
+      - description: Doctor ID
+        in: query
+        name: doctorUID
+        required: true
+        type: integer
+      - description: 'Begin Time (format: 2006-01-02 15:04)'
+        in: query
+        name: beginTime
+        required: true
+        type: string
+      - description: 'Finish Time (format: 2006-01-02 15:04)'
+        in: query
+        name: finishTime
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get available slots of doctor
       tags:
       - Appointment
   /api/auth/login:
@@ -486,7 +703,7 @@ paths:
       summary: Update patient profile
       tags:
       - User
-  /api/staff-management/me/assigned-tasks:
+  /api/staff_management/me/assigned-tasks:
     get:
       consumes:
       - application/json
@@ -509,7 +726,7 @@ paths:
       summary: Get tasks assigned by current manager
       tags:
       - StaffManagement
-  /api/staff-management/me/tasks:
+  /api/staff_management/me/tasks:
     get:
       consumes:
       - application/json
@@ -532,7 +749,7 @@ paths:
       summary: Get tasks for current staff
       tags:
       - StaffManagement
-  /api/staff-management/staffs/{uid}/tasks:
+  /api/staff_management/staffs/{uid}/tasks:
     get:
       consumes:
       - application/json
@@ -593,7 +810,7 @@ paths:
       summary: Assign task to staff
       tags:
       - StaffManagement
-  /api/staff-management/tasks/{id}:
+  /api/staff_management/tasks/{id}:
     delete:
       consumes:
       - application/json
@@ -648,6 +865,35 @@ paths:
       summary: Get task by Id
       tags:
       - StaffManagement
+  /api/treatment:
+    post:
+      consumes:
+      - application/json
+      description: Create a treatment plan
+      parameters:
+      - description: Treatment Plan
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.TreatmentPlanRequest'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Create a treatment plan
+      tags:
+      - PatientManagement
   /api/users/managers/{uid}:
     delete:
       consumes:

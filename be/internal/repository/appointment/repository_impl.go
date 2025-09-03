@@ -1,6 +1,7 @@
 package appointment
 
 import (
+	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/entity"
 	"time"
 
@@ -35,6 +36,24 @@ func (r *PostgreSQLAppointmentRepository) GetAppointmentById(appointmentId int64
 		return nil, result.Error
 	}
 	return &appointment, nil
+}
+
+func (r *PostgreSQLAppointmentRepository) GetAppointmentsByDoctorId(doctorId int64) ([]*entity.Appointment, error) {
+	var appointments []*entity.Appointment
+	result := r.db.Model(&entity.Appointment{}).Where("doctor_id = ?", doctorId).Find(&appointments)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return appointments, nil
+}
+
+func (r *PostgreSQLAppointmentRepository) GetAppointmentsByPatientId(patientId int64) ([]*entity.Appointment, error) {
+	var appointments []*entity.Appointment
+	result := r.db.Model(&entity.Appointment{}).Where("patient_id = ?", patientId).Find(&appointments)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return appointments, nil
 }
 
 func (r *PostgreSQLAppointmentRepository) GetPatientIdsByDoctorId(doctorId int64) ([]int64, error) {
@@ -73,7 +92,7 @@ func (r *PostgreSQLAppointmentRepository) CreateAppointment(tx *gorm.DB, appoint
 }
 
 func (r *PostgreSQLAppointmentRepository) DeleteAppointmentById(tx *gorm.DB, appointmentId int64) error {
-	result := tx.Model(&entity.Appointment{}).Where("id = ?", appointmentId).Delete(entity.Appointment{})
+	result := tx.Model(&entity.Appointment{}).Where("id = ?", appointmentId).Update("status", constant.AppointmentStatusCanceled)
 	return result.Error
 }
 
@@ -92,7 +111,7 @@ func (r *PostgreSQLAppointmentRepository) UpdateAppointment(tx *gorm.DB, appoint
 
 func (r *PostgreSQLAppointmentRepository) ExistsOverlapAppointmentOfDoctor(doctorId int64, beginTime, endTime time.Time) (bool, error) {
 	var appointment entity.Appointment
-	err := r.db.Where("doctor_id = ?", doctorId).Where("finish_time > ? AND begin_time < ?", beginTime, endTime).Limit(1).Take(&appointment).Error
+	err := r.db.Where("doctor_id = ?", doctorId).Where("finish_time > ? AND begin_time < ? AND status = ?", beginTime, endTime, constant.AppointmentStatusScheduled).Limit(1).Take(&appointment).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return false, nil

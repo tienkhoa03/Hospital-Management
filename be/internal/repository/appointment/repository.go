@@ -13,6 +13,8 @@ type AppointmentRepository interface {
 	CreateAppointment(tx *gorm.DB, appointment *entity.Appointment) (*entity.Appointment, error)
 	GetAllAppointment() ([]*entity.Appointment, error)
 	GetAppointmentById(appointmentId int64) (*entity.Appointment, error)
+	GetAppointmentsByPatientId(patientId int64) ([]*entity.Appointment, error)
+	GetAppointmentsByDoctorId(doctorId int64) ([]*entity.Appointment, error)
 	GetAppointmentByPatientIdAndDoctorId(patientId, doctorId int64) (*entity.Appointment, error)
 	GetPatientIdsByDoctorId(staffId int64) ([]int64, error)
 	GetAppointmentsFromIds(appointmentIds []int64) ([]*entity.Appointment, error)

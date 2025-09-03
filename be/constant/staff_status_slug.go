@@ -2,6 +2,6 @@ package constant
 
 const (
 	StaffStatusWorking  = "working"
-	StaffStatusOnLeave  = "leave"
+	StaffStatusOnLeave  = "on_leave"
 	StaffStatusInactive = "inactive"
 )

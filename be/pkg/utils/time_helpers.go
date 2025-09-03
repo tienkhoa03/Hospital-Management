@@ -1,19 +1,15 @@
 package utils
 
-import "time"
-
-const (
-	beginWorkingHourMorning   = 7
-	endWorkingHourMorning     = 11
-	beginWorkingHourAfternoon = 13
-	endWorkingHourAfternoon   = 17
+import (
+	"BE_Hospital_Management/constant"
+	"time"
 )
 
 func CheckTimeInWorkingHours(beginTime, endTime time.Time) bool {
-	if beginTime.Hour() >= beginWorkingHourMorning && endTime.Hour() <= endWorkingHourMorning {
+	if beginTime.Hour() >= constant.BeginWorkingHourMorning && endTime.Hour() <= constant.EndWorkingHourMorning {
 		return true
 	}
-	if beginTime.Hour() >= beginWorkingHourAfternoon && endTime.Hour() <= endWorkingHourAfternoon {
+	if beginTime.Hour() >= constant.BeginWorkingHourAfternoon && endTime.Hour() <= constant.EndWorkingHourAfternoon {
 		return true
 	}
 	return false
