@@ -3,7 +3,7 @@ package staffmanagement
 import (
 	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/dto"
-	service "BE_Hospital_Management/internal/service/staff-management"
+	service "BE_Hospital_Management/internal/service/staff_management"
 	"BE_Hospital_Management/pkg"
 	"BE_Hospital_Management/pkg/utils"
 	"errors"
@@ -31,7 +31,7 @@ func NewStaffManagementHandler(service service.StaffManagementService) *StaffMan
 // @Param 		 uid path int true "Staff ID"
 // @Param		request	 	body		dto.TaskInfoRequest		true	"Task information"
 // @param Authorization header string true "Authorization"
-// @Router       /api/staff-management/staffs/{uid}/tasks [POST]
+// @Router       /api/staff_management/staffs/{uid}/tasks [POST]
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @securityDefinitions.apiKey token
 // @in header
@@ -83,7 +83,7 @@ func (h *StaffManagementHandler) AssignTaskToStaff(c *gin.Context) {
 // @Tags         StaffManagement
 // @Accept 		 json
 // @Produce      json
-// @Router       /api/staff-management/me/tasks [get]
+// @Router       /api/staff_management/me/tasks [get]
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"
 // @securityDefinitions.apiKey token
@@ -119,7 +119,7 @@ func (h *StaffManagementHandler) GetMyTasks(c *gin.Context) {
 // @Tags         StaffManagement
 // @Accept 		 json
 // @Produce      json
-// @Router       /api/staff-management/me/assigned-tasks [get]
+// @Router       /api/staff_management/me/assigned-tasks [get]
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"
 // @securityDefinitions.apiKey token
@@ -155,7 +155,7 @@ func (h *StaffManagementHandler) GetMyAssignedTasks(c *gin.Context) {
 // @Tags         StaffManagement
 // @Accept 		 json
 // @Produce      json
-// @Router       /api/staff-management/staffs/{uid}/tasks [get]
+// @Router       /api/staff_management/staffs/{uid}/tasks [get]
 // @Param 		 uid path int true "Staff UID"
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"
@@ -198,7 +198,7 @@ func (h *StaffManagementHandler) GetMyAssignedTasksToAStaff(c *gin.Context) {
 // @Tags         StaffManagement
 // @Accept 		 json
 // @Produce      json
-// @Router       /api/staff-management/tasks/{id} [get]
+// @Router       /api/staff_management/tasks/{id} [get]
 // @Param 		 id path int true "Task ID"
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"
@@ -251,7 +251,7 @@ func (h *StaffManagementHandler) GetTaskById(c *gin.Context) {
 // @Tags         StaffManagement
 // @Accept 		 json
 // @Produce      json
-// @Router       /api/staff-management/tasks/{id} [delete]
+// @Router       /api/staff_management/tasks/{id} [delete]
 // @Param 		 id path int true "Task ID"
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"

@@ -206,6 +206,48 @@ const docTemplate = `{
             }
         },
         "/api/appointments/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get appointment by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Get appointment by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Appointment id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -670,7 +712,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/staff-management/me/assigned-tasks": {
+        "/api/staff_management/me/assigned-tasks": {
             "get": {
                 "security": [
                     {
@@ -707,7 +749,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/staff-management/me/tasks": {
+        "/api/staff_management/me/tasks": {
             "get": {
                 "security": [
                     {
@@ -744,7 +786,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/staff-management/staffs/{uid}/tasks": {
+        "/api/staff_management/staffs/{uid}/tasks": {
             "get": {
                 "security": [
                     {
@@ -839,7 +881,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/staff-management/tasks/{id}": {
+        "/api/staff_management/tasks/{id}": {
             "get": {
                 "security": [
                     {
@@ -910,6 +952,52 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/treatment": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Create a treatment plan",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PatientManagement"
+                ],
+                "summary": "Create a treatment plan",
+                "parameters": [
+                    {
+                        "description": "Treatment Plan",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.TreatmentPlanRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -1487,6 +1575,20 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.PrescriptionRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "instruction": {
+                    "type": "string"
+                },
+                "medicine_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.RefreshRequest": {
             "type": "object",
             "required": [
@@ -1539,6 +1641,38 @@ const docTemplate = `{
                     "default": "scheduled"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.TreatmentPlanRequest": {
+            "type": "object",
+            "properties": {
+                "appointment_id": {
+                    "type": "integer"
+                },
+                "diagnosis": {
+                    "type": "string"
+                },
+                "medical_services": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "patient_uid": {
+                    "type": "integer"
+                },
+                "prescriptions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PrescriptionRequest"
+                    }
+                },
+                "symptom": {
+                    "type": "string"
+                },
+                "treatment": {
                     "type": "string"
                 }
             }

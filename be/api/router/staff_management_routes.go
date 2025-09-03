@@ -1,7 +1,7 @@
 package api
 
 import (
-	staffManagement "BE_Hospital_Management/api/handler/staff-management"
+	staffManagement "BE_Hospital_Management/api/handler/staff_management"
 	"BE_Hospital_Management/api/middleware"
 	"BE_Hospital_Management/constant"
 	"github.com/gin-gonic/gin"
