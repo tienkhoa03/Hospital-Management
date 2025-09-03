@@ -97,7 +97,7 @@ func (r *PostgreSQLTaskRepository) UpdateTask(tx *gorm.DB, task *entity.Task) (*
 
 func (r *PostgreSQLTaskRepository) ExistsOverlapTaskOfStaff(staffId int64, beginTime, endTime time.Time) (bool, error) {
 	var task entity.Task
-	err := r.db.Where("staff_id = ?", staffId).Where("finish_time > ? AND begin_time < ?", beginTime, endTime).Limit(1).Take(&task).Error
+	err := r.db.Where("staff_id = ?", staffId).Where("finish_time > ? AND begin_time < ? AND status = ?", beginTime, endTime, constant.AppointmentStatusScheduled).Limit(1).Take(&task).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return false, nil

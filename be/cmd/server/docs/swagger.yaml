@@ -230,6 +230,28 @@ info:
   version: "1.0"
 paths:
   /api/appointments:
+    get:
+      consumes:
+      - application/json
+      description: Get all appointments of current user
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all appointments of current user
+      tags:
+      - Appointment
     post:
       consumes:
       - application/json
@@ -312,6 +334,77 @@ paths:
       security:
       - JWT: []
       summary: Update appointment time
+      tags:
+      - Appointment
+  /api/appointments/availability:
+    get:
+      consumes:
+      - application/json
+      description: Get available slots of doctor
+      parameters:
+      - description: Doctor ID
+        in: query
+        name: doctorUID
+        required: true
+        type: integer
+      - description: 'Date (format: 2006-01-02)'
+        in: query
+        name: date
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get available slots of doctor
+      tags:
+      - Appointment
+  /api/appointments/availability/check:
+    get:
+      consumes:
+      - application/json
+      description: Get available slots of doctor
+      parameters:
+      - description: Doctor ID
+        in: query
+        name: doctorUID
+        required: true
+        type: integer
+      - description: 'Begin Time (format: 2006-01-02 15:04)'
+        in: query
+        name: beginTime
+        required: true
+        type: string
+      - description: 'Finish Time (format: 2006-01-02 15:04)'
+        in: query
+        name: finishTime
+        required: true
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get available slots of doctor
       tags:
       - Appointment
   /api/auth/login:

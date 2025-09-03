@@ -18,3 +18,12 @@ type UpdateAppointmentRequest struct {
 	FinishTime *time.Time `json:"finish_time"`
 	Status     *string    `json:"status"`
 }
+
+type AppointmentSlot struct {
+	BeginTime  time.Time `json:"begin_time"`
+	FinishTime time.Time `json:"finish_time"`
+}
+
+type IsAvailableSlotResponse struct {
+	IsAvailable bool `json:"is_available"`
+}

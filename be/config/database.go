@@ -45,6 +45,49 @@ var staffRoles = []entity.StaffRole{
 	},
 }
 
+var medicines = []entity.Medicine{
+	{
+		Name:            "Paracetamol",
+		UsesInstruction: "Used to treat pain and fever.",
+		Price:           5.0,
+	},
+	{
+		Name:            "Ibuprofen",
+		UsesInstruction: "Used to reduce inflammation, pain, and fever.",
+		Price:           8.5,
+	},
+	{
+		Name:            "Amoxicillin",
+		UsesInstruction: "Antibiotic used to treat bacterial infections.",
+		Price:           12.0,
+	},
+	{
+		Name:            "Aspirin",
+		UsesInstruction: "Used to treat pain, fever, and inflammation.",
+		Price:           3.5,
+	},
+	{
+		Name:            "Omeprazole",
+		UsesInstruction: "Used to treat stomach acid-related conditions.",
+		Price:           15.0,
+	},
+	{
+		Name:            "Metformin",
+		UsesInstruction: "Used to treat type 2 diabetes.",
+		Price:           6.0,
+	},
+	{
+		Name:            "Loratadine",
+		UsesInstruction: "Used to treat allergies and hay fever.",
+		Price:           9.0,
+	},
+	{
+		Name:            "Ciprofloxacin",
+		UsesInstruction: "Antibiotic used to treat various bacterial infections.",
+		Price:           18.0,
+	},
+}
+
 func ConnectToDB() *gorm.DB {
 	db, err := gorm.Open(postgres.Open(DB_DNS), &gorm.Config{})
 	if err != nil {
@@ -212,6 +255,10 @@ func ConnectToDB() *gorm.DB {
 	for _, staffRole := range staffRoles {
 		var existing entity.StaffRole
 		db.Model(&entity.StaffRole{}).Where("role_slug = ?", staffRole.RoleSlug).FirstOrCreate(&existing, staffRole)
+	}
+	for _, medicine := range medicines {
+		var existing entity.Medicine
+		db.Model(&entity.Medicine{}).Where("name = ?", medicine.Name).FirstOrCreate(&existing, medicine)
 	}
 	return db
 }
