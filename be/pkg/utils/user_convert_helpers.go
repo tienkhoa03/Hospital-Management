@@ -6,16 +6,6 @@ import (
 	"BE_Hospital_Management/internal/domain/entity"
 )
 
-func ConvertUsersToEmails(users []*entity.User) []string {
-	var emails []string
-	for _, user := range users {
-		if user != nil {
-			emails = append(emails, user.Email)
-		}
-	}
-	return emails
-}
-
 func MapPatientToUserInfoResponse(user *entity.User, patient *entity.Patient) *dto.UserInfoResponse {
 	if user == nil || patient == nil {
 		return nil
@@ -156,40 +146,5 @@ func MapCashingOfficerToUserInfoResponse(user *entity.User, staff *entity.Staff)
 			RoleId:     staff.RoleId,
 			Role:       constant.RoleCashingOfficer,
 		},
-	}
-}
-
-func MapToTreatmentPlanResponse(medicalRecord *entity.MedicalRecord, prescriptions []*entity.Prescription, bill *entity.Bill, patientUID, doctorUID int64) *dto.TreatmentPlanResponse {
-	if medicalRecord == nil || bill == nil {
-		return nil
-	}
-	var prescriptionResponses []dto.PrescriptionResponse
-	for _, prescription := range prescriptions {
-		if prescription != nil {
-			prescriptionResponses = append(prescriptionResponses, dto.PrescriptionResponse{
-				PresciptionId:           prescription.Id,
-				MedicineId:              prescription.MedicineId,
-				MedicineName:            prescription.Medicine.Name,
-				MedicineUsesInstruction: prescription.Medicine.UsesInstruction,
-				Price:                   prescription.Medicine.Price,
-				Instruction:             prescription.Instruction,
-				Amount:                  prescription.Amount,
-			})
-		}
-	}
-	return &dto.TreatmentPlanResponse{
-		MedicalRecordId: medicalRecord.Id,
-		PatientUID:      patientUID,
-		DoctorUID:       doctorUID,
-		AppointmentId:   medicalRecord.AppointmentId,
-		Symptom:         medicalRecord.Symptoms,
-		MedicalServices: medicalRecord.MedicalServices,
-		Note:            medicalRecord.Note,
-		BillResponse: dto.BillResponse{
-			BillId:     bill.Id,
-			TotalPrice: bill.TotalPrice,
-			Status:     bill.Status,
-		},
-		Prescriptions: prescriptionResponses,
 	}
 }

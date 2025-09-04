@@ -47,7 +47,7 @@ func NewAppointmentService(userRepo userRepository.UserRepository, userRoleRepo 
 		appointmentRepo: appointmentRepo,
 	}
 }
-func (service *appointmentService) CreateAppointment(authUserId int64, authUserRole string, appointmentRequest *dto.AppointmentInfoRequest) (*entity.Appointment, error) {
+func (service *appointmentService) CreateAppointment(authUserId int64, authUserRole string, appointmentRequest *dto.AppointmentInfoRequest) (*dto.AppointmentInfoResponse, error) {
 	if appointmentRequest.BeginTime.After(appointmentRequest.FinishTime) {
 		return nil, ErrInvalidTimeRange
 	}
@@ -75,7 +75,7 @@ func (service *appointmentService) CreateAppointment(authUserId int64, authUserR
 		}
 		appointmentRequest.DoctorUID = &authUserId
 	}
-	var newAppointment *entity.Appointment
+	var response *dto.AppointmentInfoResponse
 	db := service.staffRepo.GetDB()
 	err := db.Transaction(func(tx *gorm.DB) error {
 		err := utils.AdvisoryLock(tx, utils.NamespaceStaffSchedule, *appointmentRequest.DoctorUID)
@@ -123,20 +123,21 @@ func (service *appointmentService) CreateAppointment(authUserId int64, authUserR
 			FinishTime: appointmentRequest.FinishTime,
 			Status:     appointmentRequest.Status,
 		}
-		newAppointment, err = service.appointmentRepo.CreateAppointment(tx, appointment)
+		newAppointment, err := service.appointmentRepo.CreateAppointment(tx, appointment)
 		if err != nil {
 			return err
 		}
+		response = utils.MapToAppointmentResponse(newAppointment, patient.UserId, staff.UserId)
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return newAppointment, nil
+	return response, nil
 }
 
-func (service *appointmentService) UpdateAppointment(patientUID, appointmentId int64, request *dto.UpdateAppointmentRequest) (*entity.Appointment, error) {
-	var updatedAppointment *entity.Appointment
+func (service *appointmentService) UpdateAppointment(patientUID, appointmentId int64, request *dto.UpdateAppointmentRequest) (*dto.AppointmentInfoResponse, error) {
+	var response *dto.AppointmentInfoResponse
 	db := service.staffRepo.GetDB()
 	err := db.Transaction(func(tx *gorm.DB) error {
 		appointment, err := service.appointmentRepo.GetAppointmentById(appointmentId)
@@ -230,16 +231,17 @@ func (service *appointmentService) UpdateAppointment(patientUID, appointmentId i
 		if existsOverlapAppointment {
 			return ErrExistsOverlapAppointment
 		}
-		updatedAppointment, err = service.appointmentRepo.UpdateAppointment(tx, appointment)
+		updatedAppointment, err := service.appointmentRepo.UpdateAppointment(tx, appointment)
 		if err != nil {
 			return err
 		}
+		response = utils.MapToAppointmentResponse(updatedAppointment, patient.UserId, staff.UserId)
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	return updatedAppointment, nil
+	return response, nil
 }
 
 func (service *appointmentService) DeleteAppointment(requestorUID int64, requestorRole string, appointmentId int64) error {
@@ -378,8 +380,8 @@ func (service *appointmentService) CheckAvailableSlot(doctorUID int64, beginTime
 	return true, nil
 }
 
-func (service *appointmentService) GetAllAppointments(authUserId int64, authUserRole string) ([]*entity.Appointment, error) {
-	var appointments []*entity.Appointment
+func (service *appointmentService) GetAllAppointments(authUserId int64, authUserRole string) ([]*dto.AppointmentInfoResponse, error) {
+	var response []*dto.AppointmentInfoResponse
 	if authUserRole == constant.RolePatient {
 		patient, err := service.patientRepo.GetPatientByUserId(authUserId)
 		if err != nil {
@@ -388,9 +390,26 @@ func (service *appointmentService) GetAllAppointments(authUserId int64, authUser
 			}
 			return nil, err
 		}
-		appointments, err = service.appointmentRepo.GetAppointmentsByPatientId(patient.Id)
+		appointments, err := service.appointmentRepo.GetAppointmentsByPatientId(patient.Id)
 		if err != nil {
 			return nil, err
+		}
+		for _, appointment := range appointments {
+			doctor, err := service.doctorRepo.GetDoctorById(appointment.DoctorId)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, ErrUserNotFound
+				}
+				return nil, err
+			}
+			staff, err := service.staffRepo.GetStaffById(doctor.StaffId)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, ErrUserNotFound
+				}
+				return nil, err
+			}
+			response = append(response, utils.MapToAppointmentResponse(appointment, patient.UserId, staff.UserId))
 		}
 	} else if authUserRole == constant.RoleDoctor {
 		staff, err := service.staffRepo.GetStaffByUserId(authUserId)
@@ -407,17 +426,28 @@ func (service *appointmentService) GetAllAppointments(authUserId int64, authUser
 			}
 			return nil, err
 		}
-		appointments, err = service.appointmentRepo.GetAppointmentsByDoctorId(doctor.Id)
+		appointments, err := service.appointmentRepo.GetAppointmentsByDoctorId(doctor.Id)
 		if err != nil {
 			return nil, err
+		}
+		for _, appointment := range appointments {
+			patient, err := service.patientRepo.GetPatientById(appointment.PatientId)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, ErrUserNotFound
+				}
+				return nil, err
+			}
+			response = append(response, utils.MapToAppointmentResponse(appointment, patient.UserId, staff.UserId))
 		}
 	} else {
 		return nil, ErrNotPermitted
 	}
-	return appointments, nil
+	return response, nil
 }
 
-func (service *appointmentService) GetAppointmentById(authUserId int64, authUserRole string, appointmentId int64) (*entity.Appointment, error) {
+func (service *appointmentService) GetAppointmentById(authUserId int64, authUserRole string, appointmentId int64) (*dto.AppointmentInfoResponse, error) {
+	var response *dto.AppointmentInfoResponse
 	appointment, err := service.appointmentRepo.GetAppointmentById(appointmentId)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -436,6 +466,21 @@ func (service *appointmentService) GetAppointmentById(authUserId int64, authUser
 		if appointment.PatientId != patient.Id {
 			return nil, ErrNotPermitted
 		}
+		doctor, err := service.doctorRepo.GetDoctorById(appointment.DoctorId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		staff, err := service.staffRepo.GetStaffById(doctor.StaffId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		response = utils.MapToAppointmentResponse(appointment, patient.UserId, staff.UserId)
 	} else if authUserRole == constant.RoleDoctor {
 		staff, err := service.staffRepo.GetStaffByUserId(authUserId)
 		if err != nil {
@@ -454,8 +499,17 @@ func (service *appointmentService) GetAppointmentById(authUserId int64, authUser
 		if appointment.DoctorId != doctor.Id {
 			return nil, ErrNotPermitted
 		}
+		patient, err := service.patientRepo.GetPatientById(appointment.PatientId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		response = utils.MapToAppointmentResponse(appointment, patient.UserId, staff.UserId)
 	} else {
 		return nil, ErrNotPermitted
 	}
-	return appointment, nil
+
+	return response, nil
 }

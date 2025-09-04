@@ -32,7 +32,7 @@ func NewAppointmentHandler(service service.AppointmentService) *AppointmentHandl
 // @Param		request	 	body		dto.AppointmentInfoRequest		true	"Appointment information"
 // @param Authorization header string true "Authorization"
 // @Router       /api/appointments [POST]
-// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @Success      201   {object}  dto.ApiResponseSuccessStruct
 // @securityDefinitions.apiKey token
 // @in header
 // @name Authorization
@@ -80,7 +80,7 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
 			pkg.PanicExeption(constant.UnknownError, "Happened error when creating appointment.")
 		}
 	}
-	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, newAppointment))
+	c.JSON(http.StatusCreated, pkg.BuildResponseSuccess(constant.Success, newAppointment))
 }
 
 // Appointment godoc
@@ -139,20 +139,20 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, newAppointment))
 }
 
-// Appointment godoc
-// @Summary      Delete appointment
-// @Description  Delete appointment
-// @Tags         Appointment
-// @Accept 		json
-// @Produce      json
-// @Param		id	 	path		int		true	"Appointment id"
-// @param Authorization header string true "Authorization"
-// @Router       /api/appointments/{id} [DELETE]
-// @Success      200   {object}  dto.ApiResponseSuccessStruct
-// @securityDefinitions.apiKey token
-// @in header
-// @name Authorization
-// @Security JWT
+// // Appointment godoc
+// // @Summary      Delete appointment
+// // @Description  Delete appointment
+// // @Tags         Appointment
+// // @Accept 		json
+// // @Produce      json
+// // @Param		id	 	path		int		true	"Appointment id"
+// // @param Authorization header string true "Authorization"
+// // @Router       /api/appointments/{id} [DELETE]
+// // @Success      200   {object}  dto.ApiResponseSuccessStruct
+// // @securityDefinitions.apiKey token
+// // @in header
+// // @name Authorization
+// // @Security JWT
 func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 	authUserId := utils.GetAuthUserId(c)

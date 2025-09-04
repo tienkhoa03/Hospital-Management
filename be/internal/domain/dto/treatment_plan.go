@@ -27,8 +27,8 @@ type TreatmentPlanResponse struct {
 	Diagnosis       string                 `json:"diagnosis"`
 	Treatment       string                 `json:"treatment"`
 	Note            *string                `json:"note"`
-	Prescriptions   []PrescriptionResponse `json:"prescriptions"`
-	BillResponse    BillResponse           `json:"bill"`
+	Prescriptions []PrescriptionResponse      `json:"prescriptions"`
+	BillResponse  BillInTreatmentPlanResponse `json:"bill"`
 }
 
 type PrescriptionResponse struct {
@@ -41,7 +41,7 @@ type PrescriptionResponse struct {
 	Amount                  int     `json:"amount"`
 }
 
-type BillResponse struct {
+type BillInTreatmentPlanResponse struct {
 	BillId     int64   `json:"bill_id"`
 	TotalPrice float32 `json:"total_price"`
 	Status     string  `json:"status"`
