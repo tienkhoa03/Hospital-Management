@@ -1,6 +1,7 @@
 package patientmanagement
 
 import (
+	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/dto"
 	"BE_Hospital_Management/internal/domain/entity"
 	appointmentRepository "BE_Hospital_Management/internal/repository/appointment"
@@ -17,7 +18,9 @@ import (
 	taskRepository "BE_Hospital_Management/internal/repository/task"
 	userRepository "BE_Hospital_Management/internal/repository/user"
 	userRoleRepository "BE_Hospital_Management/internal/repository/user_role"
+	"BE_Hospital_Management/pkg/utils"
 	"errors"
+
 	"gorm.io/gorm"
 )
 
@@ -158,6 +161,154 @@ func (service *patientManagementService) CreateTreatmentPlan(doctorUID int64, tr
 	})
 	if err != nil {
 		return nil, err
+	}
+	return response, nil
+}
+
+func (service *patientManagementService) GetMedicalHistory(userId int64, userRole string) ([]*dto.TreatmentPlanResponse, error) {
+	var medicalRecords []*entity.MedicalRecord
+	var response []*dto.TreatmentPlanResponse
+	if userRole == constant.RolePatient {
+		patient, err := service.patientRepo.GetPatientByUserId(userId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		medicalRecords, err = service.medicalRecordRepo.GetMedicalRecordByPatientId(patient.Id)
+		if err != nil {
+			return nil, err
+		}
+		for _, record := range medicalRecords {
+			doctor, err := service.doctorRepo.GetDoctorById(record.DoctorId)
+			if err != nil {
+				return nil, err
+			}
+			staff, err := service.staffRepo.GetStaffById(doctor.StaffId)
+			if err != nil {
+				return nil, err
+			}
+			prescriptions, err := service.prescriptionRepo.GetPrescriptionsByMedicalRecordId(record.Id)
+			if err != nil {
+				return nil, err
+			}
+			bill, err := service.billRepo.GetBillByMedicalRecordId(record.Id)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, utils.MapToTreatmentPlanResponse(record, prescriptions, bill, userId, staff.UserId))
+		}
+	} else if userRole == constant.RoleDoctor {
+		staff, err := service.staffRepo.GetStaffByUserId(userId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		doctor, err := service.doctorRepo.GetDoctorByStaffId(staff.Id)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		medicalRecords, err = service.medicalRecordRepo.GetMedicalRecordByDoctorId(doctor.Id)
+		if err != nil {
+			return nil, err
+		}
+		for _, record := range medicalRecords {
+			patient, err := service.patientRepo.GetPatientById(record.PatientId)
+			if err != nil {
+				return nil, err
+			}
+			prescriptions, err := service.prescriptionRepo.GetPrescriptionsByMedicalRecordId(record.Id)
+			if err != nil {
+				return nil, err
+			}
+			bill, err := service.billRepo.GetBillByMedicalRecordId(record.Id)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, utils.MapToTreatmentPlanResponse(record, prescriptions, bill, patient.UserId, userId))
+		}
+	} else {
+		return nil, ErrNotPermitted
+	}
+	return response, nil
+}
+
+func (service *patientManagementService) GetMedicalRecordById(userId int64, userRole string, medicalRecordId int64) (*dto.TreatmentPlanResponse, error) {
+	medicalRecord, err := service.medicalRecordRepo.GetMedicalRecordById(medicalRecordId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	var response *dto.TreatmentPlanResponse
+	if userRole == constant.RolePatient {
+		patient, err := service.patientRepo.GetPatientByUserId(userId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		if medicalRecord.PatientId != patient.Id {
+			return nil, ErrNotPermitted
+		}
+		doctor, err := service.doctorRepo.GetDoctorById(medicalRecord.DoctorId)
+		if err != nil {
+			return nil, err
+		}
+		staff, err := service.staffRepo.GetStaffById(doctor.StaffId)
+		if err != nil {
+			return nil, err
+		}
+		prescriptions, err := service.prescriptionRepo.GetPrescriptionsByMedicalRecordId(medicalRecord.Id)
+		if err != nil {
+			return nil, err
+		}
+		bill, err := service.billRepo.GetBillByMedicalRecordId(medicalRecord.Id)
+		if err != nil {
+			return nil, err
+		}
+		response = utils.MapToTreatmentPlanResponse(medicalRecord, prescriptions, bill, userId, staff.UserId)
+	} else if userRole == constant.RoleDoctor {
+		staff, err := service.staffRepo.GetStaffByUserId(userId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		doctor, err := service.doctorRepo.GetDoctorByStaffId(staff.Id)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		if medicalRecord.DoctorId != doctor.Id {
+			return nil, ErrNotPermitted
+		}
+		patient, err := service.patientRepo.GetPatientById(medicalRecord.PatientId)
+		if err != nil {
+			return nil, err
+		}
+		prescriptions, err := service.prescriptionRepo.GetPrescriptionsByMedicalRecordId(medicalRecord.Id)
+		if err != nil {
+			return nil, err
+		}
+		bill, err := service.billRepo.GetBillByMedicalRecordId(medicalRecord.Id)
+		if err != nil {
+			return nil, err
+		}
+		response = utils.MapToTreatmentPlanResponse(medicalRecord, prescriptions, bill, patient.UserId, userId)
+	} else {
+		return nil, ErrNotPermitted
 	}
 	return response, nil
 }

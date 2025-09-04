@@ -2,6 +2,7 @@ package prescription
 
 import (
 	"BE_Hospital_Management/internal/domain/entity"
+
 	"gorm.io/gorm"
 )
 
@@ -12,6 +13,7 @@ type PrescriptionRepository interface {
 	CreatePrescription(tx *gorm.DB, prescription *entity.Prescription) (*entity.Prescription, error)
 	GetAllPrescription() ([]*entity.Prescription, error)
 	GetPrescriptionById(prescriptionId int64) (*entity.Prescription, error)
+	GetPrescriptionsByMedicalRecordId(medicalRecordId int64) ([]*entity.Prescription, error)
 	GetPrescriptionsFromIds(prescriptionIds []int64) ([]*entity.Prescription, error)
 	UpdatePrescription(tx *gorm.DB, prescription *entity.Prescription) (*entity.Prescription, error)
 }

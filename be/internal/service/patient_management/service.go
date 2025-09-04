@@ -20,4 +20,6 @@ var (
 
 type PatientManagementService interface {
 	CreateTreatmentPlan(doctorUID int64, treatmentPlan dto.TreatmentPlanRequest) (*dto.TreatmentPlanResponse, error)
+	GetMedicalHistory(userId int64, userRole string) ([]*dto.TreatmentPlanResponse, error)
+	GetMedicalRecordById(userId int64, userRole string, medicalRecordId int64) (*dto.TreatmentPlanResponse, error)
 }

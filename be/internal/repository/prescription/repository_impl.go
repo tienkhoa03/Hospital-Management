@@ -36,6 +36,15 @@ func (r *PostgreSQLPrescriptionRepository) GetPrescriptionById(prescriptionId in
 	return &prescription, nil
 }
 
+func (r *PostgreSQLPrescriptionRepository) GetPrescriptionsByMedicalRecordId(medicalRecordId int64) ([]*entity.Prescription, error) {
+	var prescriptions []*entity.Prescription
+	result := r.db.Model(&entity.Prescription{}).Where("medical_record_id = ?", medicalRecordId).Find(&prescriptions)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return prescriptions, nil
+}
+
 func (r *PostgreSQLPrescriptionRepository) GetPrescriptionsFromIds(prescriptionIds []int64) ([]*entity.Prescription, error) {
 	var prescriptions []*entity.Prescription
 	result := r.db.Model(&entity.Prescription{}).Where("id IN ?", prescriptionIds).Find(&prescriptions)

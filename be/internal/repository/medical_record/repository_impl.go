@@ -36,6 +36,24 @@ func (r *PostgreSQLMedicalRecordRepository) GetMedicalRecordById(medicalRecordId
 	return &medicalRecord, nil
 }
 
+func (r *PostgreSQLMedicalRecordRepository) GetMedicalRecordByPatientId(patientId int64) ([]*entity.MedicalRecord, error) {
+	var medicalRecord []*entity.MedicalRecord
+	result := r.db.Model(&entity.MedicalRecord{}).Where("patient_id = ?", patientId).Find(&medicalRecord)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return medicalRecord, nil
+}
+
+func (r *PostgreSQLMedicalRecordRepository) GetMedicalRecordByDoctorId(doctorId int64) ([]*entity.MedicalRecord, error) {
+	var medicalRecord []*entity.MedicalRecord
+	result := r.db.Model(&entity.MedicalRecord{}).Where("doctor_id = ?", doctorId).Find(&medicalRecord)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return medicalRecord, nil
+}
+
 func (r *PostgreSQLMedicalRecordRepository) GetMedicalRecordsFromIds(medicalRecordIds []int64) ([]*entity.MedicalRecord, error) {
 	var medicalRecords []*entity.MedicalRecord
 	result := r.db.Model(&entity.MedicalRecord{}).Where("id IN ?", medicalRecordIds).Find(&medicalRecords)

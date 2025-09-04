@@ -36,6 +36,15 @@ func (r *PostgreSQLBillRepository) GetBillById(billId int64) (*entity.Bill, erro
 	return &bill, nil
 }
 
+func (r *PostgreSQLBillRepository) GetBillByMedicalRecordId(medicalRecordId int64) (*entity.Bill, error) {
+	var bill entity.Bill
+	result := r.db.Model(&entity.Bill{}).Where("medical_record_id = ?", medicalRecordId).First(&bill)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &bill, nil
+}
+
 func (r *PostgreSQLBillRepository) GetBillsFromIds(billIds []int64) ([]*entity.Bill, error) {
 	var bills []*entity.Bill
 	result := r.db.Model(&entity.Bill{}).Where("id IN ?", billIds).Find(&bills)

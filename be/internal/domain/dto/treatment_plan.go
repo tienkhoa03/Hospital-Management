@@ -20,6 +20,7 @@ type PrescriptionRequest struct {
 type TreatmentPlanResponse struct {
 	MedicalRecordId int64                  `json:"treatment_plan_id"`
 	PatientUID      int64                  `json:"patient_uid"`
+	DoctorUID       int64                  `json:"doctor_uid"`
 	AppointmentId   *int64                 `json:"appointment_id"`
 	Symptom         string                 `json:"symptom"`
 	MedicalServices *string                `json:"medical_services"`

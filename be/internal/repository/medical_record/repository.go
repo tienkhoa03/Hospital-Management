@@ -2,6 +2,7 @@ package medicalrecord
 
 import (
 	"BE_Hospital_Management/internal/domain/entity"
+
 	"gorm.io/gorm"
 )
 
@@ -12,6 +13,8 @@ type MedicalRecordRepository interface {
 	CreateMedicalRecord(tx *gorm.DB, medicalRecord *entity.MedicalRecord) (*entity.MedicalRecord, error)
 	GetAllMedicalRecord() ([]*entity.MedicalRecord, error)
 	GetMedicalRecordById(medicalRecordId int64) (*entity.MedicalRecord, error)
+	GetMedicalRecordByPatientId(patientId int64) ([]*entity.MedicalRecord, error)
+	GetMedicalRecordByDoctorId(doctorId int64) ([]*entity.MedicalRecord, error)
 	GetMedicalRecordsFromIds(medicalRecordIds []int64) ([]*entity.MedicalRecord, error)
 	UpdateMedicalRecord(tx *gorm.DB, medicalRecord *entity.MedicalRecord) (*entity.MedicalRecord, error)
 }
