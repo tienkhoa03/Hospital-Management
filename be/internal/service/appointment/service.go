@@ -2,6 +2,7 @@ package appointment
 
 import (
 	"BE_Hospital_Management/internal/domain/dto"
+	"BE_Hospital_Management/internal/domain/filter"
 	"errors"
 	"time"
 )
@@ -29,4 +30,5 @@ type AppointmentService interface {
 	CheckAvailableSlot(doctorUID int64, beginTime, finishTime time.Time) (bool, error)
 	GetAllAppointments(authUserId int64, authUserRole string) ([]*dto.AppointmentInfoResponse, error)
 	GetAppointmentById(authUserId int64, authUserRole string, appointmentId int64) (*dto.AppointmentInfoResponse, error)
+	GetAppointmentsWithFilter(authUserId int64, authUserRole string, appointmentFilter *filter.AppointmentFilter) ([]*dto.AppointmentInfoResponse, error)
 }

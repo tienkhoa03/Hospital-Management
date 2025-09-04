@@ -18,4 +18,5 @@ func registerAppointmentRoutes(api *gin.RouterGroup, h *appointment.AppointmentH
 	api.GET("appointments/availability/check", h.CheckAvailableSlot)
 	api.GET("/appointments", h.GetAllAppointments)
 	api.GET("/appointments/:id", h.GetAppointmentById)
+	api.GET("/appointments/filter", h.GetAllAppointmentsWithFilter)
 }

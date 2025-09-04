@@ -453,6 +453,56 @@ paths:
       summary: Get available slots of doctor
       tags:
       - Appointment
+  /api/appointments/filter:
+    get:
+      consumes:
+      - application/json
+      description: Get appointments of current user with filter
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - enum:
+        - beginTime
+        - createdAt
+        in: query
+        name: sortBy
+        type: string
+      - in: query
+        name: status
+        type: string
+      - in: query
+        name: timeFrom
+        type: string
+      - in: query
+        name: timeTo
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get appointments of current user with filter
+      tags:
+      - Appointment
   /api/auth/login:
     post:
       consumes:
