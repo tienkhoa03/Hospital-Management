@@ -964,6 +964,169 @@ paths:
       summary: Get medical records of current user with filter
       tags:
       - PatientManagement
+  /api/staff-management/me/assigned-tasks/filter:
+    get:
+      consumes:
+      - application/json
+      description: Get tasks assigned by current manager with filter
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - enum:
+        - beginTime
+        - createdAt
+        in: query
+        name: sortBy
+        type: string
+      - enum:
+        - scheduled
+        - completed
+        - canceled
+        in: query
+        name: status
+        type: string
+      - in: query
+        name: timeFrom
+        type: string
+      - in: query
+        name: timeTo
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get tasks assigned by current manager with filter
+      tags:
+      - StaffManagement
+  /api/staff-management/me/tasks/filter:
+    get:
+      consumes:
+      - application/json
+      description: Get tasks of current staff with filter
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - enum:
+        - beginTime
+        - createdAt
+        in: query
+        name: sortBy
+        type: string
+      - enum:
+        - scheduled
+        - completed
+        - canceled
+        in: query
+        name: status
+        type: string
+      - in: query
+        name: timeFrom
+        type: string
+      - in: query
+        name: timeTo
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get tasks of current staff with filter
+      tags:
+      - StaffManagement
+  /api/staff-management/staffs/{uid}/tasks/filter:
+    get:
+      consumes:
+      - application/json
+      description: Get tasks assigned by current manager to a specific staff with
+        filter
+      parameters:
+      - in: query
+        name: limit
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - enum:
+        - beginTime
+        - createdAt
+        in: query
+        name: sortBy
+        type: string
+      - enum:
+        - scheduled
+        - completed
+        - canceled
+        in: query
+        name: status
+        type: string
+      - in: query
+        name: timeFrom
+        type: string
+      - in: query
+        name: timeTo
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get tasks assigned by current manager to a specific staff with filter
+      tags:
+      - StaffManagement
   /api/staff-management/tasks/{id}:
     patch:
       consumes:

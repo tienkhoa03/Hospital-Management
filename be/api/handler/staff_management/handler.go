@@ -3,6 +3,7 @@ package staffmanagement
 import (
 	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/dto"
+	"BE_Hospital_Management/internal/domain/filter"
 	service "BE_Hospital_Management/internal/service/staff_management"
 	"BE_Hospital_Management/pkg"
 	"BE_Hospital_Management/pkg/utils"
@@ -114,6 +115,48 @@ func (h *StaffManagementHandler) GetMyTasks(c *gin.Context) {
 }
 
 // StaffManagement godoc
+// @Summary      Get tasks of current staff with filter
+// @Description  Get tasks of current staff with filter
+// @Tags         StaffManagement
+// @Accept 		json
+// @Produce      json
+// @Param        task   query    filter.TaskFilter   false  "Task filter"
+// @param Authorization header string true "Authorization"
+// @Router       /api/staff-management/me/tasks/filter [GET]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *StaffManagementHandler) GetMyTasksWithFilter(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserId(c)
+	if authUserId == nil {
+		log.Error("Happened error when getting tasks. Error: ", "Missing user ID in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
+	}
+	var taskFilter filter.TaskFilter
+	if err := c.ShouldBindQuery(&taskFilter); err != nil {
+		log.Error("Happened error when mapping query to filter. Error", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Happened error when mapping query to filter")
+	}
+	tasks, err := h.service.GetTasksByStaffUIDWithFilter(*authUserId, &taskFilter)
+	if err != nil {
+		log.Error("Happened error when getting tasks. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when getting tasks.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, tasks))
+}
+
+// StaffManagement godoc
 // @Summary      Get tasks assigned by current manager
 // @Description  Get tasks assigned by current manager
 // @Tags         StaffManagement
@@ -147,6 +190,48 @@ func (h *StaffManagementHandler) GetMyAssignedTasks(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, taskInfo))
+}
+
+// StaffManagement godoc
+// @Summary      Get tasks assigned by current manager with filter
+// @Description  Get tasks assigned by current manager with filter
+// @Tags         StaffManagement
+// @Accept 		json
+// @Produce      json
+// @Param        task   query    filter.TaskFilter   false  "Task filter"
+// @param Authorization header string true "Authorization"
+// @Router       /api/staff-management/me/assigned-tasks/filter [GET]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *StaffManagementHandler) GetMyAssignedTasksWithFilter(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserId(c)
+	if authUserId == nil {
+		log.Error("Happened error when getting tasks. Error: ", "Missing user ID in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
+	}
+	var taskFilter filter.TaskFilter
+	if err := c.ShouldBindQuery(&taskFilter); err != nil {
+		log.Error("Happened error when mapping query to filter. Error", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Happened error when mapping query to filter")
+	}
+	tasks, err := h.service.GetTasksByManagerUIDWithFilter(*authUserId, &taskFilter)
+	if err != nil {
+		log.Error("Happened error when getting tasks. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when getting tasks.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, tasks))
 }
 
 // StaffManagement godoc
@@ -190,6 +275,54 @@ func (h *StaffManagementHandler) GetMyAssignedTasksToAStaff(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, taskInfo))
+}
+
+// StaffManagement godoc
+// @Summary      Get tasks assigned by current manager to a specific staff with filter
+// @Description  Get tasks assigned by current manager to a specific staff with filter
+// @Tags         StaffManagement
+// @Accept 		json
+// @Produce      json
+// @Param        task   query    filter.TaskFilter   false  "Task filter"
+// @param Authorization header string true "Authorization"
+// @Router       /api/staff-management/staffs/{uid}/tasks/filter [GET]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *StaffManagementHandler) GetMyAssignedTasksToAStaffWithFilter(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserId(c)
+	if authUserId == nil {
+		log.Error("Happened error when getting tasks. Error: ", "Missing user ID in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
+	}
+	staffUIDStr := c.Param("uid")
+	staffUID, err := strconv.ParseInt(staffUIDStr, 10, 64)
+	if err != nil {
+		log.Error("Happened error when converting Id to int64. Error: ", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Happened error when converting Id to int64")
+	}
+	var taskFilter filter.TaskFilter
+	if err := c.ShouldBindQuery(&taskFilter); err != nil {
+		log.Error("Happened error when mapping query to filter. Error", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Happened error when mapping query to filter")
+	}
+	tasks, err := h.service.GetTasksByMangerUIDAndStaffUIDWithFilter(*authUserId, staffUID, &taskFilter)
+	if err != nil {
+		log.Error("Happened error when getting tasks. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when getting tasks.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, tasks))
 }
 
 // StaffManagement godoc
