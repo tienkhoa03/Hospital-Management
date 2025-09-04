@@ -2,6 +2,7 @@ package patientmanagement
 
 import (
 	"BE_Hospital_Management/internal/domain/dto"
+	"BE_Hospital_Management/internal/domain/filter"
 	"errors"
 )
 
@@ -22,4 +23,5 @@ type PatientManagementService interface {
 	CreateTreatmentPlan(doctorUID int64, treatmentPlan dto.TreatmentPlanRequest) (*dto.TreatmentPlanResponse, error)
 	GetMedicalHistory(userId int64, userRole string) ([]*dto.TreatmentPlanResponse, error)
 	GetMedicalRecordById(userId int64, userRole string, medicalRecordId int64) (*dto.TreatmentPlanResponse, error)
+	GetMedicalRecordsWithFilter(userId int64, userRole string, medicalRecordFilter *filter.MedicalRecordFilter) ([]*dto.TreatmentPlanResponse, error)
 }

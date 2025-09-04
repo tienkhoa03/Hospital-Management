@@ -1,0 +1,30 @@
+package filter
+
+import (
+	"fmt"
+	"time"
+
+	"gorm.io/gorm"
+)
+
+type MedicalRecordFilter struct {
+	CreatedAfter  *time.Time `form:"createdAfter"`
+	CreatedBefore *time.Time `form:"createdBefore"`
+	SortBy        string     `form:"sortBy,default=createdAt" binding:"omitempty,oneof=createdAt"`
+	Order         string     `form:"order,default=asc" binding:"omitempty,oneof=asc desc"`
+	Page          int        `form:"page,default=1"`
+	Limit         int        `form:"limit,default=10"`
+}
+
+func (f *MedicalRecordFilter) ApplyFilter(db *gorm.DB) *gorm.DB {
+	if f.CreatedAfter != nil {
+		db = db.Where("begin_time >= ?", f.CreatedAfter)
+	}
+	if f.CreatedBefore != nil {
+		db = db.Where("finish_time <= ?", f.CreatedBefore)
+	}
+	db = db.Order(fmt.Sprintf("%s %s", f.SortBy, f.Order))
+	offset := (f.Page - 1) * f.Limit
+	db = db.Offset(offset).Limit(f.Limit)
+	return db
+}

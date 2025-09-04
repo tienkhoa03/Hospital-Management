@@ -477,7 +477,11 @@ paths:
         in: query
         name: sortBy
         type: string
-      - in: query
+      - enum:
+        - scheduled
+        - completed
+        - canceled
+        in: query
         name: status
         type: string
       - in: query
@@ -860,6 +864,52 @@ paths:
       security:
       - JWT: []
       summary: Get treatment plan by Id
+      tags:
+      - PatientManagement
+  /api/patients/medical-records/filter:
+    get:
+      consumes:
+      - application/json
+      description: Get medical records of current user with filter
+      parameters:
+      - in: query
+        name: createdAfter
+        type: string
+      - in: query
+        name: createdBefore
+        type: string
+      - in: query
+        name: limit
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - enum:
+        - createdAt
+        in: query
+        name: sortBy
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get medical records of current user with filter
       tags:
       - PatientManagement
   /api/staff-management/tasks/{id}:

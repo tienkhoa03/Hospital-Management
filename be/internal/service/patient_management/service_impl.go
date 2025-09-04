@@ -4,6 +4,7 @@ import (
 	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/dto"
 	"BE_Hospital_Management/internal/domain/entity"
+	"BE_Hospital_Management/internal/domain/filter"
 	appointmentRepository "BE_Hospital_Management/internal/repository/appointment"
 	billRepository "BE_Hospital_Management/internal/repository/bill"
 	billItemRepository "BE_Hospital_Management/internal/repository/bill_item"
@@ -176,7 +177,7 @@ func (service *patientManagementService) GetMedicalHistory(userId int64, userRol
 			}
 			return nil, err
 		}
-		medicalRecords, err = service.medicalRecordRepo.GetMedicalRecordByPatientId(patient.Id)
+		medicalRecords, err = service.medicalRecordRepo.GetMedicalRecordsByPatientId(patient.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -214,7 +215,7 @@ func (service *patientManagementService) GetMedicalHistory(userId int64, userRol
 			}
 			return nil, err
 		}
-		medicalRecords, err = service.medicalRecordRepo.GetMedicalRecordByDoctorId(doctor.Id)
+		medicalRecords, err = service.medicalRecordRepo.GetMedicalRecordsByDoctorId(doctor.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -307,6 +308,80 @@ func (service *patientManagementService) GetMedicalRecordById(userId int64, user
 			return nil, err
 		}
 		response = utils.MapToTreatmentPlanResponse(medicalRecord, prescriptions, bill, patient.UserId, userId)
+	} else {
+		return nil, ErrNotPermitted
+	}
+	return response, nil
+}
+
+func (service *patientManagementService) GetMedicalRecordsWithFilter(userId int64, userRole string, medicalRecordFilter *filter.MedicalRecordFilter) ([]*dto.TreatmentPlanResponse, error) {
+	var medicalRecords []*entity.MedicalRecord
+	var response []*dto.TreatmentPlanResponse
+	if userRole == constant.RolePatient {
+		patient, err := service.patientRepo.GetPatientByUserId(userId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		medicalRecords, err = service.medicalRecordRepo.GetMedicalRecordsByPatientIdWithFilter(patient.Id, medicalRecordFilter)
+		if err != nil {
+			return nil, err
+		}
+		for _, record := range medicalRecords {
+			doctor, err := service.doctorRepo.GetDoctorById(record.DoctorId)
+			if err != nil {
+				return nil, err
+			}
+			staff, err := service.staffRepo.GetStaffById(doctor.StaffId)
+			if err != nil {
+				return nil, err
+			}
+			prescriptions, err := service.prescriptionRepo.GetPrescriptionsByMedicalRecordId(record.Id)
+			if err != nil {
+				return nil, err
+			}
+			bill, err := service.billRepo.GetBillByMedicalRecordId(record.Id)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, utils.MapToTreatmentPlanResponse(record, prescriptions, bill, userId, staff.UserId))
+		}
+	} else if userRole == constant.RoleDoctor {
+		staff, err := service.staffRepo.GetStaffByUserId(userId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		doctor, err := service.doctorRepo.GetDoctorByStaffId(staff.Id)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		medicalRecords, err = service.medicalRecordRepo.GetMedicalRecordsByDoctorIdWithFilter(doctor.Id, medicalRecordFilter)
+		if err != nil {
+			return nil, err
+		}
+		for _, record := range medicalRecords {
+			patient, err := service.patientRepo.GetPatientById(record.PatientId)
+			if err != nil {
+				return nil, err
+			}
+			prescriptions, err := service.prescriptionRepo.GetPrescriptionsByMedicalRecordId(record.Id)
+			if err != nil {
+				return nil, err
+			}
+			bill, err := service.billRepo.GetBillByMedicalRecordId(record.Id)
+			if err != nil {
+				return nil, err
+			}
+			response = append(response, utils.MapToTreatmentPlanResponse(record, prescriptions, bill, patient.UserId, userId))
+		}
 	} else {
 		return nil, ErrNotPermitted
 	}
