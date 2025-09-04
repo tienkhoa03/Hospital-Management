@@ -866,6 +866,28 @@ paths:
       tags:
       - StaffManagement
   /api/treatment:
+    get:
+      consumes:
+      - application/json
+      description: Get all treatment plan of current user
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all treatment plan of current user
+      tags:
+      - PatientManagement
     post:
       consumes:
       - application/json
@@ -892,6 +914,34 @@ paths:
       security:
       - JWT: []
       summary: Create a treatment plan
+      tags:
+      - PatientManagement
+  /api/treatment/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get treatment plan by Id
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Medical Record ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get treatment plan by Id
       tags:
       - PatientManagement
   /api/users/managers/{uid}:
