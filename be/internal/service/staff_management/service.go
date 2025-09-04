@@ -2,6 +2,7 @@ package staffmanagement
 
 import (
 	"BE_Hospital_Management/internal/domain/dto"
+	"BE_Hospital_Management/internal/domain/filter"
 	"errors"
 )
 
@@ -25,4 +26,7 @@ type StaffManagementService interface {
 	GetTaskById(authUserId int64, authUserRole string, taskId int64) (*dto.TaskInfoResponse, error)
 	UpdateTaskById(authUserId int64, taskId int64, updateRequest *dto.UpdateTaskInfoRequest) (*dto.TaskInfoResponse, error)
 	DeleteTaskById(authUserId int64, taskId int64) error
+	GetTasksByStaffUIDWithFilter(staffUID int64, taskFilter *filter.TaskFilter) ([]*dto.TaskInfoResponse, error)
+	GetTasksByManagerUIDWithFilter(managerUID int64, taskFilter *filter.TaskFilter) ([]*dto.TaskInfoResponse, error)
+	GetTasksByMangerUIDAndStaffUIDWithFilter(managerUID, staffUID int64, taskFilter *filter.TaskFilter) ([]*dto.TaskInfoResponse, error)
 }

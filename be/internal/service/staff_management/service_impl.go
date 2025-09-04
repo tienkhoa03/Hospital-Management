@@ -4,6 +4,7 @@ import (
 	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/dto"
 	"BE_Hospital_Management/internal/domain/entity"
+	"BE_Hospital_Management/internal/domain/filter"
 	appointmentRepository "BE_Hospital_Management/internal/repository/appointment"
 	doctorRepository "BE_Hospital_Management/internal/repository/doctor"
 	managerRepository "BE_Hospital_Management/internal/repository/manager"
@@ -389,6 +390,87 @@ func (service *staffManagementService) UpdateTaskById(authUserId int64, taskId i
 	})
 	if err != nil {
 		return nil, err
+	}
+	return response, nil
+}
+
+func (service *staffManagementService) GetTasksByStaffUIDWithFilter(staffUID int64, taskFilter *filter.TaskFilter) ([]*dto.TaskInfoResponse, error) {
+	staff, err := service.staffRepo.GetStaffByUserId(staffUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	tasks, err := service.taskRepo.GetTasksByStaffIdWithFilter(staff.Id, taskFilter)
+	if err != nil {
+		return nil, err
+	}
+	var response []*dto.TaskInfoResponse
+	for _, task := range tasks {
+		manager, err := service.managerRepo.GetManagerById(task.AssignerId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		response = append(response, utils.MapToTaskResponse(task, staff.UserId, manager.UserId))
+	}
+	return response, nil
+}
+
+func (service *staffManagementService) GetTasksByManagerUIDWithFilter(managerUID int64, taskFilter *filter.TaskFilter) ([]*dto.TaskInfoResponse, error) {
+	manager, err := service.managerRepo.GetManagerByUserId(managerUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	tasks, err := service.taskRepo.GetTasksByManagerIdWithFilter(manager.Id, taskFilter)
+	if err != nil {
+		return nil, err
+	}
+	var response []*dto.TaskInfoResponse
+	for _, task := range tasks {
+		staff, err := service.staffRepo.GetStaffById(task.StaffId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		response = append(response, utils.MapToTaskResponse(task, staff.UserId, manager.UserId))
+	}
+	return response, nil
+}
+
+func (service *staffManagementService) GetTasksByMangerUIDAndStaffUIDWithFilter(managerUID, staffUID int64, taskFilter *filter.TaskFilter) ([]*dto.TaskInfoResponse, error) {
+	manager, err := service.managerRepo.GetManagerByUserId(managerUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	staff, err := service.staffRepo.GetStaffByUserId(staffUID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	if staff.ManageBy != manager.Id {
+		return nil, ErrNotPermitted
+	}
+	tasks, err := service.taskRepo.GetTasksByManagerIdAndStaffIdWithFilter(manager.Id, staff.Id, taskFilter)
+	if err != nil {
+		return nil, err
+	}
+	var response []*dto.TaskInfoResponse
+	for _, task := range tasks {
+		response = append(response, utils.MapToTaskResponse(task, staff.UserId, manager.UserId))
 	}
 	return response, nil
 }

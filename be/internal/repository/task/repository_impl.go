@@ -3,6 +3,7 @@ package task
 import (
 	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/entity"
+	"BE_Hospital_Management/internal/domain/filter"
 	"time"
 
 	"gorm.io/gorm"
@@ -110,4 +111,37 @@ func (r *PostgreSQLTaskRepository) ExistsOverlapTaskOfStaff(staffId int64, begin
 func (r *PostgreSQLTaskRepository) DeleteTaskById(tx *gorm.DB, taskId int64) error {
 	result := tx.Model(&entity.Task{}).Where("id = ?", taskId).Update("status", constant.TaskStatusCanceled)
 	return result.Error
+}
+
+func (r *PostgreSQLTaskRepository) GetTasksByStaffIdWithFilter(staffId int64, taskFilter *filter.TaskFilter) ([]*entity.Task, error) {
+	var tasks []*entity.Task
+	db := r.db.Model(&entity.Task{}).Where("staff_id = ?", staffId)
+	db = taskFilter.ApplyFilter(db)
+	result := db.Find(&tasks)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return tasks, nil
+}
+
+func (r *PostgreSQLTaskRepository) GetTasksByManagerIdWithFilter(managerId int64, taskFilter *filter.TaskFilter) ([]*entity.Task, error) {
+	var tasks []*entity.Task
+	db := r.db.Model(&entity.Task{}).Where("assigner_id = ?", managerId)
+	db = taskFilter.ApplyFilter(db)
+	result := db.Find(&tasks)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return tasks, nil
+}
+
+func (r *PostgreSQLTaskRepository) GetTasksByManagerIdAndStaffIdWithFilter(managerId, staffId int64, taskFilter *filter.TaskFilter) ([]*entity.Task, error) {
+	var tasks []*entity.Task
+	db := r.db.Model(&entity.Task{}).Where("assigner_id = ? AND staff_id = ?", managerId, staffId)
+	db = taskFilter.ApplyFilter(db)
+	result := db.Find(&tasks)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return tasks, nil
 }
