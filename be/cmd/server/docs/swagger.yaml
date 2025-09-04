@@ -203,6 +203,22 @@ definitions:
       status:
         type: string
     type: object
+  dto.UpdateTaskInfoRequest:
+    properties:
+      begin_time:
+        type: string
+      description:
+        type: string
+      finish_time:
+        type: string
+      staff_uid:
+        type: integer
+      status:
+        default: scheduled
+        type: string
+      title:
+        type: string
+    type: object
   dto.UpdateUserRequest:
     properties:
       address:
@@ -301,8 +317,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessStruct'
       security:
@@ -311,33 +327,6 @@ paths:
       tags:
       - Appointment
   /api/appointments/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete appointment
-      parameters:
-      - description: Appointment id
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Authorization
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
-      security:
-      - JWT: []
-      summary: Delete appointment
-      tags:
-      - Appointment
     get:
       consumes:
       - application/json
@@ -558,6 +547,75 @@ paths:
       summary: Register new user
       tags:
       - Auth
+  /api/bills:
+    get:
+      consumes:
+      - application/json
+      description: Get all bills of current user (patient or cashing officer)
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all bills of current user
+      tags:
+      - Billing
+  /api/bills/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get bill by id
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get bill by id
+      tags:
+      - Billing
+  /api/bills/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      description: Update the status of a bill to "paid" by a cashing officer
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Update bill status to paid
+      tags:
+      - Billing
   /api/cashing-officer/{uid}:
     patch:
       consumes:
@@ -703,6 +761,91 @@ paths:
       summary: Update patient profile
       tags:
       - User
+  /api/patients/medical-records:
+    get:
+      consumes:
+      - application/json
+      description: Get all treatment plan of current user
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all treatment plan of current user
+      tags:
+      - PatientManagement
+  /api/patients/medical-records/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get treatment plan by Id
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Medical Record ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get treatment plan by Id
+      tags:
+      - PatientManagement
+  /api/staff-management/tasks/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: Update task by Id
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated task information
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTaskInfoRequest'
+      - description: User Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Update task by Id
+      tags:
+      - StaffManagement
   /api/staff_management/me/assigned-tasks:
     get:
       consumes:
@@ -801,8 +944,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessStruct'
       security:
@@ -811,33 +954,6 @@ paths:
       tags:
       - StaffManagement
   /api/staff_management/tasks/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete task by Id
-      parameters:
-      - description: Task ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: User Authorization
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
-      security:
-      - JWT: []
-      summary: Delete task by Id
-      tags:
-      - StaffManagement
     get:
       consumes:
       - application/json
@@ -866,28 +982,6 @@ paths:
       tags:
       - StaffManagement
   /api/treatment:
-    get:
-      consumes:
-      - application/json
-      description: Get all treatment plan of current user
-      parameters:
-      - description: Authorization
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
-      security:
-      - JWT: []
-      summary: Get all treatment plan of current user
-      tags:
-      - PatientManagement
     post:
       consumes:
       - application/json
@@ -907,8 +1001,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/dto.ApiResponseSuccessStruct'
       security:
@@ -916,62 +1010,6 @@ paths:
       summary: Create a treatment plan
       tags:
       - PatientManagement
-  /api/treatment/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get treatment plan by Id
-      parameters:
-      - description: Authorization
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Medical Record ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
-      security:
-      - JWT: []
-      summary: Get treatment plan by Id
-      tags:
-      - PatientManagement
-  /api/users/managers/{uid}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete manager by user ID
-      parameters:
-      - description: manager UID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: User Authorization
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
-      security:
-      - JWT: []
-      summary: Delete manager by user ID
-      tags:
-      - User
   /api/users/me:
     get:
       consumes:
@@ -1167,33 +1205,6 @@ paths:
       tags:
       - User
   /api/users/me/staffs/{uid}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete staff by user ID for manager
-      parameters:
-      - description: staff UID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: User Authorization
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
-      security:
-      - JWT: []
-      summary: Delete staff by user ID for manager
-      tags:
-      - User
     get:
       consumes:
       - application/json

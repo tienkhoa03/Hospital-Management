@@ -12,6 +12,7 @@ type BillItemRepository interface {
 	CreateBillItem(tx *gorm.DB, billItem *entity.BillItem) (*entity.BillItem, error)
 	GetAllBillItem() ([]*entity.BillItem, error)
 	GetBillItemById(billItemId int64) (*entity.BillItem, error)
+	GetBillItemsByBillId(billId int64) ([]*entity.BillItem, error)
 	GetBillItemsFromIds(billItemIds []int64) ([]*entity.BillItem, error)
 	UpdateBillItem(tx *gorm.DB, billItem *entity.BillItem) (*entity.BillItem, error)
 }

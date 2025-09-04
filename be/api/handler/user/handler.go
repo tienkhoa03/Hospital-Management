@@ -322,20 +322,20 @@ func (h *UserHandler) GetMyStaffByUID(c *gin.Context) {
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, userInfo))
 }
 
-// User godoc
-// @Summary      Delete manager by user ID
-// @Description  Delete manager by user ID
-// @Tags         User
-// @Accept 		 json
-// @Produce      json
-// @Router       /api/users/managers/{uid} [delete]
-// @Param id path int true "manager UID"
-// @Success      200   {object}  dto.ApiResponseSuccessStruct
-// @param Authorization header string true "User Authorization"
-// @securityDefinitions.apiKey token
-// @in header
-// @name Authorization
-// @Security JWT
+// // User godoc
+// // @Summary      Delete manager by user ID
+// // @Description  Delete manager by user ID
+// // @Tags         User
+// // @Accept 		 json
+// // @Produce      json
+// // @Router       /api/users/managers/{uid} [delete]
+// // @Param id path int true "manager UID"
+// // @Success      200   {object}  dto.ApiResponseSuccessStruct
+// // @param Authorization header string true "User Authorization"
+// // @securityDefinitions.apiKey token
+// // @in header
+// // @name Authorization
+// // @Security JWT
 func (h *UserHandler) DeleteManagerByUID(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 	managerUIDStr := c.Param("uid")
@@ -359,20 +359,20 @@ func (h *UserHandler) DeleteManagerByUID(c *gin.Context) {
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccessNoData())
 }
 
-// User godoc
-// @Summary      Delete staff by user ID for manager
-// @Description  Delete staff by user ID for manager
-// @Tags         User
-// @Accept 		 json
-// @Produce      json
-// @Router       /api/users/me/staffs/{uid} [delete]
-// @Param id path int true "staff UID"
-// @Success      200   {object}  dto.ApiResponseSuccessStruct
-// @param Authorization header string true "User Authorization"
-// @securityDefinitions.apiKey token
-// @in header
-// @name Authorization
-// @Security JWT
+// // User godoc
+// // @Summary      Delete staff by user ID for manager
+// // @Description  Delete staff by user ID for manager
+// // @Tags         User
+// // @Accept 		 json
+// // @Produce      json
+// // @Router       /api/users/me/staffs/{uid} [delete]
+// // @Param id path int true "staff UID"
+// // @Success      200   {object}  dto.ApiResponseSuccessStruct
+// // @param Authorization header string true "User Authorization"
+// // @securityDefinitions.apiKey token
+// // @in header
+// // @name Authorization
+// // @Security JWT
 func (h *UserHandler) DeleteStaffByUID(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 	authUserId := utils.GetAuthUserId(c)

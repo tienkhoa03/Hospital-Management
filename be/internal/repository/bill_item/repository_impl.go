@@ -36,6 +36,15 @@ func (r *PostgreSQLBillItemRepository) GetBillItemById(billItemId int64) (*entit
 	return &billItem, nil
 }
 
+func (r *PostgreSQLBillItemRepository) GetBillItemsByBillId(billId int64) ([]*entity.BillItem, error) {
+	var billItems []*entity.BillItem
+	result := r.db.Model(&entity.BillItem{}).Preload("Medicine").Where("bill_id = ?", billId).Find(&billItems)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return billItems, nil
+}
+
 func (r *PostgreSQLBillItemRepository) GetBillItemsFromIds(billItemIds []int64) ([]*entity.BillItem, error) {
 	var billItems []*entity.BillItem
 	result := r.db.Model(&entity.BillItem{}).Where("id IN ?", billItemIds).Find(&billItems)

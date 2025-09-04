@@ -16,4 +16,5 @@ func registerStaffManagementRoutes(api *gin.RouterGroup, h *staffManagement.Staf
 	api.GET("/staff-management/staffs/:uid/tasks", middleware.RequireAnyRole([]string{constant.RoleManager}), h.GetMyAssignedTasksToAStaff)
 	api.GET("/staff-management/tasks/:id", middleware.RequireAnyRole([]string{constant.RoleManager, constant.RoleDoctor, constant.RoleCashingOfficer, constant.RoleNurse}), h.GetTaskById)
 	api.DELETE("/staff-management/tasks/:id", middleware.RequireAnyRole([]string{constant.RoleManager}), h.DeleteTaskById)
+	api.PATCH("/api/staff-management/tasks/:id", middleware.RequireAnyRole([]string{constant.RoleManager}), h.UpdateTaskById)
 }

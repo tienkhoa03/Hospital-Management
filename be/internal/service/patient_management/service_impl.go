@@ -140,7 +140,7 @@ func (service *patientManagementService) CreateTreatmentPlan(doctorUID int64, tr
 		if err != nil {
 			return err
 		}
-		billResponse := dto.BillResponse{
+		billResponse := dto.BillInTreatmentPlanResponse{
 			BillId:     newBill.Id,
 			TotalPrice: newBill.TotalPrice,
 			Status:     newBill.Status,

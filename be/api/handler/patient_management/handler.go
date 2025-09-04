@@ -31,7 +31,7 @@ func NewAppointmentHandler(service service.PatientManagementService) *PatientMan
 // @Param		request	 	body		dto.TreatmentPlanRequest		true	"Treatment Plan"
 // @param Authorization header string true "Authorization"
 // @Router       /api/treatment [POST]
-// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @Success      201   {object}  dto.ApiResponseSuccessStruct
 // @securityDefinitions.apiKey token
 // @in header
 // @name Authorization
@@ -61,7 +61,7 @@ func (h *PatientManagementHandler) CreateTreatmentPlan(c *gin.Context) {
 			pkg.PanicExeption(constant.UnknownError, "Happened error when creating treatment plan.")
 		}
 	}
-	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, newTreatmentPlan))
+	c.JSON(http.StatusCreated, pkg.BuildResponseSuccess(constant.Success, newTreatmentPlan))
 }
 
 // PatientManagement godoc
@@ -71,7 +71,7 @@ func (h *PatientManagementHandler) CreateTreatmentPlan(c *gin.Context) {
 // @Accept 		json
 // @Produce      json
 // @param Authorization header string true "Authorization"
-// @Router       /api/treatment [GET]
+// @Router       /api/patients/medical-records [GET]
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @securityDefinitions.apiKey token
 // @in header
@@ -113,7 +113,7 @@ func (h *PatientManagementHandler) GetAllTreatmentPlan(c *gin.Context) {
 // @Accept 		json
 // @Produce      json
 // @param Authorization header string true "Authorization"
-// @Router       /api/treatment/{id} [GET]
+// @Router       /api/patients/medical-records/{id} [GET]
 // @Param        id   path      int  true  "Medical Record ID"
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @securityDefinitions.apiKey token

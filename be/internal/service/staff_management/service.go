@@ -2,7 +2,6 @@ package staffmanagement
 
 import (
 	"BE_Hospital_Management/internal/domain/dto"
-	"BE_Hospital_Management/internal/domain/entity"
 	"errors"
 )
 
@@ -19,10 +18,11 @@ var (
 //go:generate mockgen -source=service.go -destination=../mock/mock_staff_management_service.go
 
 type StaffManagementService interface {
-	CreateTask(managerId int64, staffUID int64, task *dto.TaskInfoRequest) (*entity.Task, error)
-	GetTasksByStaffUID(staffUID int64) ([]*entity.Task, error)
-	GetTasksByManagerUID(managerUID int64) ([]*entity.Task, error)
-	GetTasksByMangerUIDAndStaffUID(managerUID, staffUID int64) ([]*entity.Task, error)
-	GetTaskById(authUserId int64, authUserRole string, taskId int64) (*entity.Task, error)
+	CreateTask(managerId int64, staffUID int64, task *dto.TaskInfoRequest) (*dto.TaskInfoResponse, error)
+	GetTasksByStaffUID(staffUID int64) ([]*dto.TaskInfoResponse, error)
+	GetTasksByManagerUID(managerUID int64) ([]*dto.TaskInfoResponse, error)
+	GetTasksByMangerUIDAndStaffUID(managerUID, staffUID int64) ([]*dto.TaskInfoResponse, error)
+	GetTaskById(authUserId int64, authUserRole string, taskId int64) (*dto.TaskInfoResponse, error)
+	UpdateTaskById(authUserId int64, taskId int64, updateRequest *dto.UpdateTaskInfoRequest) (*dto.TaskInfoResponse, error)
 	DeleteTaskById(authUserId int64, taskId int64) error
 }
