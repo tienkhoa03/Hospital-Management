@@ -378,20 +378,20 @@ func (h *StaffManagementHandler) GetTaskById(c *gin.Context) {
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, taskInfo))
 }
 
-// //StaffManagement godoc
-// //@Summary      Delete task by Id
-// //@Description  Delete task by Id
-// //@Tags         StaffManagement
-// //@Accept 		 json
-// //@Produce      json
-// //@Router       /api/staff_management/tasks/{id} [delete]
-// //@Param 		 id path int true "Task ID"
-// //@Success      200   {object}  dto.ApiResponseSuccessStruct
-// //@param Authorization header string true "User Authorization"
-// //@securityDefinitions.apiKey token
-// //@in header
-// //@name Authorization
-// //@Security JWT
+// StaffManagement godoc
+// @Summary      Delete task by Id
+// @Description  Delete task by Id
+// @Tags         StaffManagement
+// @Accept 		 json
+// @Produce      json
+// @Router       /api/staff_management/tasks/{id} [delete]
+// @Param 		 id path int true "Task ID"
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @param Authorization header string true "User Authorization"
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
 func (h *StaffManagementHandler) DeleteTaskById(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 	authUserId := utils.GetAuthUserId(c)

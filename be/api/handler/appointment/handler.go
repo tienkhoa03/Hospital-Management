@@ -140,20 +140,20 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, newAppointment))
 }
 
-// // Appointment godoc
-// // @Summary      Delete appointment
-// // @Description  Delete appointment
-// // @Tags         Appointment
-// // @Accept 		json
-// // @Produce      json
-// // @Param		id	 	path		int		true	"Appointment id"
-// // @param Authorization header string true "Authorization"
-// // @Router       /api/appointments/{id} [DELETE]
-// // @Success      200   {object}  dto.ApiResponseSuccessStruct
-// // @securityDefinitions.apiKey token
-// // @in header
-// // @name Authorization
-// // @Security JWT
+// Appointment godoc
+// @Summary      Delete appointment
+// @Description  Delete appointment
+// @Tags         Appointment
+// @Accept 		json
+// @Produce      json
+// @Param		id	 	path		int		true	"Appointment id"
+// @param Authorization header string true "Authorization"
+// @Router       /api/appointments/{id} [DELETE]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
 func (h *AppointmentHandler) DeleteAppointment(c *gin.Context) {
 	defer pkg.PanicHandler(c)
 	authUserId := utils.GetAuthUserId(c)
