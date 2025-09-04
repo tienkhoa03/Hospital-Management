@@ -3,6 +3,7 @@ package appointment
 import (
 	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/dto"
+	"BE_Hospital_Management/internal/domain/filter"
 	service "BE_Hospital_Management/internal/service/appointment"
 	"BE_Hospital_Management/pkg"
 	"BE_Hospital_Management/pkg/utils"
@@ -387,4 +388,52 @@ func (h *AppointmentHandler) GetAppointmentById(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, appointment))
+}
+
+// Appointment godoc
+// @Summary      Get appointments of current user with filter
+// @Description  Get appointments of current user with filter
+// @Tags         Appointment
+// @Accept 		json
+// @Produce      json
+// @Param        appointment   query    filter.AppointmentFilter   false  "Appointment filter"
+// @param Authorization header string true "Authorization"
+// @Router       /api/appointments/filter [GET]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *AppointmentHandler) GetAllAppointmentsWithFilter(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserId(c)
+	if authUserId == nil {
+		log.Error("Happened error when getting appointments. Error: ", "Missing user ID in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
+	}
+	authUserRole := utils.GetAuthUserRole(c)
+	if authUserRole == nil {
+		log.Error("Happened error when getting appointments. Error: ", "Missing user role in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user role in context")
+		return
+	}
+	var appointmentFilter filter.AppointmentFilter
+	if err := c.ShouldBindQuery(&appointmentFilter); err != nil {
+		log.Error("Happened error when mapping query to filter. Error", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Happened error when mapping query to filter")
+	}
+	appointments, err := h.service.GetAppointmentsWithFilter(*authUserId, *authUserRole, &appointmentFilter)
+	if err != nil {
+		log.Error("Happened error when getting appointments. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when getting appointments.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, appointments))
 }

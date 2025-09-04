@@ -3,6 +3,7 @@ package appointment
 import (
 	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/entity"
+	"BE_Hospital_Management/internal/domain/filter"
 	"time"
 
 	"gorm.io/gorm"
@@ -119,4 +120,26 @@ func (r *PostgreSQLAppointmentRepository) ExistsOverlapAppointmentOfDoctor(docto
 		return false, err
 	}
 	return true, nil
+}
+
+func (r *PostgreSQLAppointmentRepository) GetAppointmentsByPatientIdWithFilter(patientId int64, filter *filter.AppointmentFilter) ([]*entity.Appointment, error) {
+	var appointments []*entity.Appointment
+	db := r.db.Model(&entity.Appointment{}).Where("patient_id = ?", patientId)
+	db = filter.ApplyFilter(db)
+	result := db.Find(&appointments)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return appointments, nil
+}
+
+func (r *PostgreSQLAppointmentRepository) GetAppointmentsByDoctorIdWithFilter(doctorId int64, appointmentFilter *filter.AppointmentFilter) ([]*entity.Appointment, error) {
+	var appointments []*entity.Appointment
+	db := r.db.Model(&entity.Appointment{}).Where("doctor_id = ?", doctorId)
+	db = appointmentFilter.ApplyFilter(db)
+	result := db.Find(&appointments)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return appointments, nil
 }

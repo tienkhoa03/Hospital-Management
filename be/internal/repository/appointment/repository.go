@@ -2,6 +2,7 @@ package appointment
 
 import (
 	"BE_Hospital_Management/internal/domain/entity"
+	"BE_Hospital_Management/internal/domain/filter"
 	"gorm.io/gorm"
 	"time"
 )
@@ -21,4 +22,6 @@ type AppointmentRepository interface {
 	UpdateAppointment(tx *gorm.DB, appointment *entity.Appointment) (*entity.Appointment, error)
 	DeleteAppointmentById(tx *gorm.DB, appointmentId int64) error
 	ExistsOverlapAppointmentOfDoctor(doctorId int64, beginTime, endTime time.Time) (bool, error)
+	GetAppointmentsByPatientIdWithFilter(patientId int64, appointmentFilter *filter.AppointmentFilter) ([]*entity.Appointment, error)
+	GetAppointmentsByDoctorIdWithFilter(doctorId int64, appointmentFilter *filter.AppointmentFilter) ([]*entity.Appointment, error)
 }

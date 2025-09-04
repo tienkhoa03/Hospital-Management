@@ -4,6 +4,7 @@ import (
 	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/dto"
 	"BE_Hospital_Management/internal/domain/entity"
+	"BE_Hospital_Management/internal/domain/filter"
 	appointmentRepository "BE_Hospital_Management/internal/repository/appointment"
 	doctorRepository "BE_Hospital_Management/internal/repository/doctor"
 	managerRepository "BE_Hospital_Management/internal/repository/manager"
@@ -511,5 +512,71 @@ func (service *appointmentService) GetAppointmentById(authUserId int64, authUser
 		return nil, ErrNotPermitted
 	}
 
+	return response, nil
+}
+
+func (service *appointmentService) GetAppointmentsWithFilter(authUserId int64, authUserRole string, appointmentFilter *filter.AppointmentFilter) ([]*dto.AppointmentInfoResponse, error) {
+	var response []*dto.AppointmentInfoResponse
+	if authUserRole == constant.RolePatient {
+		patient, err := service.patientRepo.GetPatientByUserId(authUserId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		appointments, err := service.appointmentRepo.GetAppointmentsByPatientIdWithFilter(patient.Id, appointmentFilter)
+		if err != nil {
+			return nil, err
+		}
+		for _, appointment := range appointments {
+			doctor, err := service.doctorRepo.GetDoctorById(appointment.DoctorId)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, ErrUserNotFound
+				}
+				return nil, err
+			}
+			staff, err := service.staffRepo.GetStaffById(doctor.StaffId)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, ErrUserNotFound
+				}
+				return nil, err
+			}
+			response = append(response, utils.MapToAppointmentResponse(appointment, patient.UserId, staff.UserId))
+		}
+	} else if authUserRole == constant.RoleDoctor {
+		staff, err := service.staffRepo.GetStaffByUserId(authUserId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		doctor, err := service.doctorRepo.GetDoctorByStaffId(staff.Id)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		appointments, err := service.appointmentRepo.GetAppointmentsByPatientIdWithFilter(doctor.Id, appointmentFilter)
+		if err != nil {
+			return nil, err
+		}
+		for _, appointment := range appointments {
+			patient, err := service.patientRepo.GetPatientById(appointment.PatientId)
+			if err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, ErrUserNotFound
+				}
+				return nil, err
+			}
+			response = append(response, utils.MapToAppointmentResponse(appointment, patient.UserId, staff.UserId))
+		}
+	} else {
+		return nil, ErrNotPermitted
+	}
 	return response, nil
 }
