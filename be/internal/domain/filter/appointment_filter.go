@@ -10,7 +10,7 @@ import (
 type AppointmentFilter struct {
 	TimeFrom *time.Time `form:"timeFrom"`
 	TimeTo   *time.Time `form:"timeTo"`
-	Status   *string    `form:"status"`
+	Status   *string    `form:"status" binding:"omitempty,oneof=scheduled completed canceled"`
 	SortBy   string     `form:"sortBy,default=beginTime" binding:"omitempty,oneof=beginTime createdAt"`
 	Order    string     `form:"order,default=asc" binding:"omitempty,oneof=asc desc"`
 	Page     int        `form:"page,default=1"`

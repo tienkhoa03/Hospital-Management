@@ -253,6 +253,11 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "scheduled",
+                            "completed",
+                            "canceled"
+                        ],
                         "type": "string",
                         "name": "status",
                         "in": "query"
@@ -834,6 +839,80 @@ const docTemplate = `{
                 ],
                 "summary": "Get all treatment plan of current user",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/patients/medical-records/filter": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get medical records of current user with filter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PatientManagement"
+                ],
+                "summary": "Get medical records of current user with filter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "createdAfter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "createdBefore",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "createdAt"
+                        ],
+                        "type": "string",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
                     {
                         "type": "string",
                         "description": "Authorization",

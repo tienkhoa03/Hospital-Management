@@ -3,6 +3,7 @@ package appointment
 import (
 	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/dto"
+	"BE_Hospital_Management/internal/domain/filter"
 	service "BE_Hospital_Management/internal/service/patient_management"
 	"BE_Hospital_Management/pkg"
 	"BE_Hospital_Management/pkg/utils"
@@ -153,4 +154,52 @@ func (h *PatientManagementHandler) GetTreatmentPlanById(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, treatmentPlan))
+}
+
+// PatientManagement godoc
+// @Summary      Get medical records of current user with filter
+// @Description  Get medical records of current user with filter
+// @Tags         PatientManagement
+// @Accept 		json
+// @Produce      json
+// @Param        appointment   query    filter.MedicalRecordFilter   false  "Medical record filter"
+// @param Authorization header string true "Authorization"
+// @Router       /api/patients/medical-records/filter [GET]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *PatientManagementHandler) GetTreatmentPlansWithFilter(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserId(c)
+	if authUserId == nil {
+		log.Error("Happened error when getting treatment plans. Error: ", "Missing user ID in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
+	}
+	authUserRole := utils.GetAuthUserRole(c)
+	if authUserRole == nil {
+		log.Error("Happened error when getting treatment plans. Error: ", "Missing user role in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user role in context")
+		return
+	}
+	var medicalRecordFilter filter.MedicalRecordFilter
+	if err := c.ShouldBindQuery(&medicalRecordFilter); err != nil {
+		log.Error("Happened error when mapping query to filter. Error", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Happened error when mapping query to filter")
+	}
+	treatmentPlans, err := h.service.GetMedicalRecordsWithFilter(*authUserId, *authUserRole, &medicalRecordFilter)
+	if err != nil {
+		log.Error("Happened error when getting treatment plans. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when getting treatment plans.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, treatmentPlans))
 }

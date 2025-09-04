@@ -14,4 +14,5 @@ func registerPatientManagementRoutes(api *gin.RouterGroup, h *patientManagement.
 	api.POST("/treatment", middleware.RequireAnyRole([]string{constant.RoleDoctor}), h.CreateTreatmentPlan)
 	api.GET("/api/patients/medical-records", middleware.RequireAnyRole([]string{constant.RoleDoctor, constant.RolePatient}), h.GetAllTreatmentPlan)
 	api.GET("/api/patients/medical-records/:id", middleware.RequireAnyRole([]string{constant.RoleDoctor, constant.RolePatient}), h.GetTreatmentPlanById)
+	api.GET("api/patients/medical-records/filter", middleware.RequireAnyRole([]string{constant.RoleDoctor, constant.RolePatient}), h.GetTreatmentPlansWithFilter)
 }
