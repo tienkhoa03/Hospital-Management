@@ -2,6 +2,7 @@ package billing
 
 import (
 	"BE_Hospital_Management/constant"
+	"BE_Hospital_Management/internal/domain/filter"
 	service "BE_Hospital_Management/internal/service/billing"
 	"BE_Hospital_Management/pkg"
 	"BE_Hospital_Management/pkg/utils"
@@ -151,4 +152,52 @@ func (h *BillingHandler) GetBillById(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, bill))
+}
+
+// Billing godoc
+// @Summary      Get bills of current user with filter
+// @Description  Get bills of current user with filter
+// @Tags         Billing
+// @Accept 		json
+// @Produce      json
+// @Param        bill   query    filter.BillFilter   false  "Bill filter"
+// @param Authorization header string true "Authorization"
+// @Router       /api/bills/filter [GET]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *BillingHandler) GetBillsWithFilter(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserId(c)
+	if authUserId == nil {
+		log.Error("Happened error when getting bills. Error: ", "Missing user ID in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
+	}
+	authUserRole := utils.GetAuthUserRole(c)
+	if authUserRole == nil {
+		log.Error("Happened error when getting bills. Error: ", "Missing user role in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user role in context")
+		return
+	}
+	var billFilter filter.BillFilter
+	if err := c.ShouldBindQuery(&billFilter); err != nil {
+		log.Error("Happened error when mapping query to filter. Error", err)
+		pkg.PanicExeption(constant.InvalidRequest, "Happened error when mapping query to filter")
+	}
+	bills, err := h.service.GetBillsWithFilter(*authUserId, *authUserRole, &billFilter)
+	if err != nil {
+		log.Error("Happened error when getting appointments. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when getting bills.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, bills))
 }

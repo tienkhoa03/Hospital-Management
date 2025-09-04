@@ -162,7 +162,7 @@ func (h *PatientManagementHandler) GetTreatmentPlanById(c *gin.Context) {
 // @Tags         PatientManagement
 // @Accept 		json
 // @Produce      json
-// @Param        appointment   query    filter.MedicalRecordFilter   false  "Medical record filter"
+// @Param        medicalRecord   query    filter.MedicalRecordFilter   false  "Medical record filter"
 // @param Authorization header string true "Authorization"
 // @Router       /api/patients/medical-records/filter [GET]
 // @Success      200   {object}  dto.ApiResponseSuccessStruct

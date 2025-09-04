@@ -2,6 +2,7 @@ package bill
 
 import (
 	"BE_Hospital_Management/internal/domain/entity"
+	"BE_Hospital_Management/internal/domain/filter"
 
 	"gorm.io/gorm"
 )
@@ -91,4 +92,26 @@ func (r *PostgreSQLBillRepository) UpdateBill(tx *gorm.DB, bill *entity.Bill) (*
 		return nil, result.Error
 	}
 	return &updatedBill, nil
+}
+
+func (r *PostgreSQLBillRepository) GetBillsByPatientIdWithFilter(patientId int64, billFilter *filter.BillFilter) ([]*entity.Bill, error) {
+	var bills []*entity.Bill
+	db := r.db.Model(&entity.Bill{}).Where("patient_id = ?", patientId)
+	db = billFilter.ApplyFilter(db)
+	result := db.Find(&bills)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return bills, nil
+}
+
+func (r *PostgreSQLBillRepository) GetBillsByCashingOfficerIdWithFilter(cashingOfficerId int64, billFilter *filter.BillFilter) ([]*entity.Bill, error) {
+	var bills []*entity.Bill
+	db := r.db.Model(&entity.Bill{}).Where("cashing_officer_id = ?", cashingOfficerId)
+	db = billFilter.ApplyFilter(db)
+	result := db.Find(&bills)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return bills, nil
 }
