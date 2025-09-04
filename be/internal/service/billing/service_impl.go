@@ -4,6 +4,7 @@ import (
 	"BE_Hospital_Management/constant"
 	"BE_Hospital_Management/internal/domain/dto"
 	"BE_Hospital_Management/internal/domain/entity"
+	"BE_Hospital_Management/internal/domain/filter"
 	appointmentRepository "BE_Hospital_Management/internal/repository/appointment"
 	billRepository "BE_Hospital_Management/internal/repository/bill"
 	billItemRepository "BE_Hospital_Management/internal/repository/bill_item"
@@ -237,4 +238,80 @@ func (service *billingService) GetBillById(userId int64, userRole string, billId
 		return nil, ErrNotPermitted
 	}
 	return response, nil
+}
+
+func (service *billingService) GetBillsWithFilter(userId int64, userRole string, billFilter *filter.BillFilter) ([]*dto.BillResponse, error) {
+	var responses []*dto.BillResponse
+	if userRole == constant.RolePatient {
+		patient, err := service.patientRepo.GetPatientByUserId(userId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		bills, err := service.billRepo.GetBillsByPatientIdWithFilter(patient.Id, billFilter)
+		if err != nil {
+			return nil, err
+		}
+		for _, bill := range bills {
+			doctor, err := service.doctorRepo.GetDoctorById(bill.DoctorId)
+			if err != nil {
+				return nil, err
+			}
+			doctorStaff, err := service.staffRepo.GetStaffById(doctor.StaffId)
+			if err != nil {
+				return nil, err
+			}
+			var cashingOfficerUID *int64
+			if bill.CashingOfficerId != nil {
+				cashingOfficer, err := service.staffRepo.GetStaffById(*bill.CashingOfficerId)
+				if err != nil {
+					return nil, err
+				}
+				cashingOfficerUID = &cashingOfficer.UserId
+			}
+			billItems, err := service.billItemRepo.GetBillItemsByBillId(bill.Id)
+			if err != nil {
+				return nil, err
+			}
+			response := utils.MapToBillResponse(bill, billItems, patient.UserId, doctorStaff.UserId, cashingOfficerUID)
+			responses = append(responses, response)
+		}
+	} else if userRole == constant.RoleCashingOfficer {
+		cashingOfficerStaff, err := service.staffRepo.GetStaffByUserId(userId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
+		bills, err := service.billRepo.GetBillsByCashingOfficerIdWithFilter(cashingOfficerStaff.Id, billFilter)
+		if err != nil {
+			return nil, err
+		}
+		for _, bill := range bills {
+			patient, err := service.patientRepo.GetPatientById(bill.PatientId)
+			if err != nil {
+				return nil, err
+			}
+			doctor, err := service.doctorRepo.GetDoctorById(bill.DoctorId)
+			if err != nil {
+				return nil, err
+			}
+			doctorStaff, err := service.staffRepo.GetStaffById(doctor.StaffId)
+			if err != nil {
+				return nil, err
+			}
+			billItems, err := service.billItemRepo.GetBillItemsByBillId(bill.Id)
+			if err != nil {
+				return nil, err
+			}
+			response := utils.MapToBillResponse(bill, billItems, patient.UserId, doctorStaff.UserId, &userId)
+			responses = append(responses, response)
+		}
+	} else {
+		return nil, ErrNotPermitted
+	}
+	return responses, nil
 }

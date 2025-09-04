@@ -670,6 +670,58 @@ paths:
       summary: Update bill status to paid
       tags:
       - Billing
+  /api/bills/filter:
+    get:
+      consumes:
+      - application/json
+      description: Get bills of current user with filter
+      parameters:
+      - in: query
+        name: createdAfter
+        type: string
+      - in: query
+        name: createdBefore
+        type: string
+      - in: query
+        name: limit
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: page
+        type: integer
+      - enum:
+        - createdAt
+        in: query
+        name: sortBy
+        type: string
+      - enum:
+        - paid
+        - unpaid
+        in: query
+        name: status
+        type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get bills of current user with filter
+      tags:
+      - Billing
   /api/cashing-officer/{uid}:
     patch:
       consumes:

@@ -2,6 +2,7 @@ package billing
 
 import (
 	"BE_Hospital_Management/internal/domain/dto"
+	"BE_Hospital_Management/internal/domain/filter"
 	"errors"
 )
 
@@ -17,4 +18,5 @@ type BillingService interface {
 	UpdateBillStatusPaid(cashingOfficerUID, billId int64) (*dto.BillResponse, error)
 	GetAllBills(userId int64, userRole string) ([]*dto.BillResponse, error)
 	GetBillById(userId int64, userRole string, billId int64) (*dto.BillResponse, error)
+	GetBillsWithFilter(userId int64, userRole string, billFilter *filter.BillFilter) ([]*dto.BillResponse, error)
 }
