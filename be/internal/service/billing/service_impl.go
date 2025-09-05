@@ -107,8 +107,42 @@ func (service *billingService) UpdateBillStatusPaid(cashingOfficerUID, billId in
 	}
 	return response, nil
 }
-
-func (service *billingService) GetAllBills(userId int64, userRole string) ([]*dto.BillResponse, error) {
+func (service *billingService) GetAllBills(userId int64) ([]*dto.BillResponse, error) {
+	var responses []*dto.BillResponse
+	_, err := service.staffRepo.GetStaffByUserId(userId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	bills, err := service.billRepo.GetAllBill()
+	if err != nil {
+		return nil, err
+	}
+	for _, bill := range bills {
+		patient, err := service.patientRepo.GetPatientById(bill.PatientId)
+		if err != nil {
+			return nil, err
+		}
+		doctor, err := service.doctorRepo.GetDoctorById(bill.DoctorId)
+		if err != nil {
+			return nil, err
+		}
+		doctorStaff, err := service.staffRepo.GetStaffById(doctor.StaffId)
+		if err != nil {
+			return nil, err
+		}
+		billItems, err := service.billItemRepo.GetBillItemsByBillId(bill.Id)
+		if err != nil {
+			return nil, err
+		}
+		response := utils.MapToBillResponse(bill, billItems, patient.UserId, doctorStaff.UserId, &userId)
+		responses = append(responses, response)
+	}
+	return responses, nil
+}
+func (service *billingService) GetAllBillsOfCurrentUser(userId int64, userRole string) ([]*dto.BillResponse, error) {
 	var responses []*dto.BillResponse
 	if userRole == constant.RolePatient {
 		patient, err := service.patientRepo.GetPatientByUserId(userId)
@@ -223,15 +257,12 @@ func (service *billingService) GetBillById(userId int64, userRole string, billId
 		}
 		response = utils.MapToBillResponse(bill, billItems, patient.UserId, doctorStaff.UserId, cashingOfficerUID)
 	} else if userRole == constant.RoleCashingOfficer {
-		cashingOfficerStaff, err := service.staffRepo.GetStaffByUserId(userId)
+		_, err := service.staffRepo.GetStaffByUserId(userId)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, ErrUserNotFound
 			}
 			return nil, err
-		}
-		if bill.CashingOfficerId == nil || *bill.CashingOfficerId != cashingOfficerStaff.Id {
-			return nil, ErrNotPermitted
 		}
 		response = utils.MapToBillResponse(bill, billItems, patient.UserId, doctorStaff.UserId, &userId)
 	} else {

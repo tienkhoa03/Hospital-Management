@@ -12,7 +12,8 @@ import (
 func registerBillingRoutes(api *gin.RouterGroup, h *billing.BillingHandler, db *gorm.DB) {
 	api.Use(middleware.ValidateAccessToken())
 	api.PATCH("/bills/:id/status", middleware.RequireAnyRole([]string{constant.RoleCashingOfficer}), h.UpdateBillStatusPaid)
-	api.GET("/bills", middleware.RequireAnyRole([]string{constant.RoleCashingOfficer, constant.RolePatient}), h.GetAllBills)
+	api.GET("/bills", middleware.RequireAnyRole([]string{constant.RoleCashingOfficer}), h.GetAllBills)
+	api.GET("/bills/my", middleware.RequireAnyRole([]string{constant.RoleCashingOfficer, constant.RolePatient}), h.GetMyBills)
 	api.GET("/bills/:id", middleware.RequireAnyRole([]string{constant.RoleCashingOfficer, constant.RolePatient}), h.GetBillById)
 	api.GET("/bills/filter", middleware.RequireAnyRole([]string{constant.RoleCashingOfficer, constant.RolePatient}), h.GetBillsWithFilter)
 }

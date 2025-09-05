@@ -24,7 +24,7 @@ var (
 
 type AppointmentService interface {
 	CreateAppointment(authUserId int64, authUserRole string, appointmentRequest *dto.AppointmentInfoRequest) (*dto.AppointmentInfoResponse, error)
-	UpdateAppointment(patientUID, appointmentId int64, request *dto.UpdateAppointmentRequest) (*dto.AppointmentInfoResponse, error)
+	UpdateAppointment(authUserId int64, authUserRole string, appointmentId int64, request *dto.UpdateAppointmentRequest) (*dto.AppointmentInfoResponse, error)
 	DeleteAppointment(requestorUID int64, requestorRole string, appointmentId int64) error
 	GetAvailableSlots(doctorUID int64, date time.Time) ([]*dto.AppointmentSlot, error)
 	CheckAvailableSlot(doctorUID int64, beginTime, finishTime time.Time) (bool, error)

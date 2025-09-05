@@ -12,7 +12,7 @@ import (
 func registerAppointmentRoutes(api *gin.RouterGroup, h *appointment.AppointmentHandler, db *gorm.DB) {
 	api.Use(middleware.ValidateAccessToken())
 	api.POST("/appointments", middleware.RequireAnyRole([]string{constant.RoleDoctor, constant.RolePatient}), h.CreateAppointment)
-	api.PATCH("/appointments/:id", middleware.RequireAnyRole([]string{constant.RolePatient}), h.UpdateAppointment)
+	api.PATCH("/appointments/:id", middleware.RequireAnyRole([]string{constant.RolePatient, constant.RoleDoctor}), h.UpdateAppointment)
 	api.DELETE("/appointments/:id", middleware.RequireAnyRole([]string{constant.RoleDoctor, constant.RolePatient}), h.DeleteAppointment)
 	api.GET("/appointments/availability", h.GetAvailableSlots)
 	api.GET("appointments/availability/check", h.CheckAvailableSlot)

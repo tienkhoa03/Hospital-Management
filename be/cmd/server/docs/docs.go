@@ -154,7 +154,7 @@ const docTemplate = `{
                         "JWT": []
                     }
                 ],
-                "description": "Get available slots of doctor",
+                "description": "Check if slot is available",
                 "consumes": [
                     "application/json"
                 ],
@@ -164,7 +164,7 @@ const docTemplate = `{
                 "tags": [
                     "Appointment"
                 ],
-                "summary": "Get available slots of doctor",
+                "summary": "Check if slot is available",
                 "parameters": [
                     {
                         "type": "integer",
@@ -175,14 +175,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Begin Time (format: 2006-01-02 15:04)",
+                        "description": "Begin Time",
                         "name": "beginTime",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Finish Time (format: 2006-01-02 15:04)",
+                        "description": "Finish Time",
                         "name": "finishTime",
                         "in": "query",
                         "required": true
@@ -381,7 +381,7 @@ const docTemplate = `{
                         "JWT": []
                     }
                 ],
-                "description": "Update appointment time",
+                "description": "Update appointment",
                 "consumes": [
                     "application/json"
                 ],
@@ -391,8 +391,15 @@ const docTemplate = `{
                 "tags": [
                     "Appointment"
                 ],
-                "summary": "Update appointment time",
+                "summary": "Update appointment",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Appointment id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "Appointment time",
                         "name": "request",
@@ -574,7 +581,7 @@ const docTemplate = `{
                         "JWT": []
                     }
                 ],
-                "description": "Get all bills of current user (patient or cashing officer)",
+                "description": "Get all bills",
                 "consumes": [
                     "application/json"
                 ],
@@ -584,7 +591,7 @@ const docTemplate = `{
                 "tags": [
                     "Billing"
                 ],
-                "summary": "Get all bills of current user",
+                "summary": "Get all bills",
                 "parameters": [
                     {
                         "type": "string",
@@ -687,6 +694,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/bills/my": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get all bills of current user (patient or cashing officer)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Billing"
+                ],
+                "summary": "Get all bills of current user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
         "/api/bills/{id}": {
             "get": {
                 "security": [
@@ -706,6 +750,13 @@ const docTemplate = `{
                 ],
                 "summary": "Get bill by id",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bill ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Authorization",
@@ -743,6 +794,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update bill status to paid",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bill ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Authorization",

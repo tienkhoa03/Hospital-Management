@@ -68,7 +68,7 @@ func (r *PostgreSQLDoctorRepository) UpdateDoctor(tx *gorm.DB, doctor *entity.Do
 		return nil, result.Error
 	}
 	var updatedDoctor = entity.Doctor{}
-	result = r.db.First(&updatedDoctor, doctor.Id)
+	result = tx.First(&updatedDoctor, doctor.Id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
