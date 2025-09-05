@@ -286,7 +286,7 @@ func (h *UserHandler) GetAllMyCashingOfficers(c *gin.Context) {
 // @Accept 		 json
 // @Produce      json
 // @Router       /api/users/me/staffs/{uid} [get]
-// @Param id path int true "Staff UID"
+// @Param uid path int true "Staff UID"
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"
 // @securityDefinitions.apiKey token
@@ -329,7 +329,7 @@ func (h *UserHandler) GetMyStaffByUID(c *gin.Context) {
 // @Accept 		 json
 // @Produce      json
 // @Router       /api/users/managers/{uid} [delete]
-// @Param id path int true "manager UID"
+// @Param uid path int true "manager UID"
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"
 // @securityDefinitions.apiKey token
@@ -366,7 +366,7 @@ func (h *UserHandler) DeleteManagerByUID(c *gin.Context) {
 // @Accept 		 json
 // @Produce      json
 // @Router       /api/users/me/staffs/{uid} [delete]
-// @Param id path int true "staff UID"
+// @Param uid path int true "staff UID"
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"
 // @securityDefinitions.apiKey token
@@ -448,6 +448,7 @@ func (h *UserHandler) UpdateMyProfile(c *gin.Context) {
 // @Tags         User
 // @Accept 		json
 // @Produce      json
+// @Param uid path int true "manager UID"
 // @Param		request	 	body		dto.UpdateManagerRequest		true	"New information"
 // @param Authorization header string true "Authorization"
 // @Router       /api/managers/{uid} [PATCH]
@@ -488,6 +489,7 @@ func (h *UserHandler) UpdateManagerProfile(c *gin.Context) {
 // @Tags         User
 // @Accept 		json
 // @Produce      json
+// @Param uid path int true "doctor UID"
 // @Param		request	 	body		dto.UpdateDoctorRequest		true	"New information"
 // @param Authorization header string true "Authorization"
 // @Router       /api/doctors/{uid} [PATCH]
@@ -536,6 +538,7 @@ func (h *UserHandler) UpdateDoctorProfile(c *gin.Context) {
 // @Tags         User
 // @Accept 		json
 // @Produce      json
+// @Param uid path int true "nurse UID"
 // @Param		request	 	body		dto.UpdateNurseRequest		true	"New information"
 // @param Authorization header string true "Authorization"
 // @Router       /api/nurses/{uid} [PATCH]
@@ -584,6 +587,7 @@ func (h *UserHandler) UpdateNurseProfile(c *gin.Context) {
 // @Tags         User
 // @Accept 		json
 // @Produce      json
+// @Param uid path int true "cashing officer UID"
 // @Param		request	 	body		dto.UpdateCashingOfficerRequest		true	"New information"
 // @param Authorization header string true "Authorization"
 // @Router       /api/cashing-officer/{uid} [PATCH]
@@ -632,6 +636,7 @@ func (h *UserHandler) UpdateCashingOfficerProfile(c *gin.Context) {
 // @Tags         User
 // @Accept 		json
 // @Produce      json
+// @Param uid path int true "patient UID"
 // @Param		request	 	body		dto.UpdatePatientRequest		true	"New information"
 // @param Authorization header string true "Authorization"
 // @Router       /api/patients/{uid} [PATCH]

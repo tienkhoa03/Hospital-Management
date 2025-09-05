@@ -32,7 +32,7 @@ func NewStaffManagementHandler(service service.StaffManagementService) *StaffMan
 // @Param 		 uid path int true "Staff ID"
 // @Param		request	 	body		dto.TaskInfoRequest		true	"Task information"
 // @param Authorization header string true "Authorization"
-// @Router       /api/staff_management/staffs/{uid}/tasks [POST]
+// @Router       /api/staff-management/staffs/{uid}/tasks [POST]
 // @Success      201   {object}  dto.ApiResponseSuccessStruct
 // @securityDefinitions.apiKey token
 // @in header
@@ -71,6 +71,8 @@ func (h *StaffManagementHandler) AssignTaskToStaff(c *gin.Context) {
 			pkg.PanicExeption(constant.Conflict, err.Error())
 		case errors.Is(err, service.ErrExistsOverlapAppointment):
 			pkg.PanicExeption(constant.Conflict, err.Error())
+		case errors.Is(err, service.ErrOutOfWorkingHours):
+			pkg.PanicExeption(constant.InvalidRequest, err.Error())
 		default:
 			pkg.PanicExeption(constant.UnknownError, "Happened error when assigning task to staff.")
 		}
@@ -84,7 +86,7 @@ func (h *StaffManagementHandler) AssignTaskToStaff(c *gin.Context) {
 // @Tags         StaffManagement
 // @Accept 		 json
 // @Produce      json
-// @Router       /api/staff_management/me/tasks [get]
+// @Router       /api/staff-management/me/tasks [get]
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"
 // @securityDefinitions.apiKey token
@@ -162,7 +164,7 @@ func (h *StaffManagementHandler) GetMyTasksWithFilter(c *gin.Context) {
 // @Tags         StaffManagement
 // @Accept 		 json
 // @Produce      json
-// @Router       /api/staff_management/me/assigned-tasks [get]
+// @Router       /api/staff-management/me/assigned-tasks [get]
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"
 // @securityDefinitions.apiKey token
@@ -240,7 +242,7 @@ func (h *StaffManagementHandler) GetMyAssignedTasksWithFilter(c *gin.Context) {
 // @Tags         StaffManagement
 // @Accept 		 json
 // @Produce      json
-// @Router       /api/staff_management/staffs/{uid}/tasks [get]
+// @Router       /api/staff-management/staffs/{uid}/tasks [get]
 // @Param 		 uid path int true "Staff UID"
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"
@@ -331,7 +333,7 @@ func (h *StaffManagementHandler) GetMyAssignedTasksToAStaffWithFilter(c *gin.Con
 // @Tags         StaffManagement
 // @Accept 		 json
 // @Produce      json
-// @Router       /api/staff_management/tasks/{id} [get]
+// @Router       /api/staff-management/tasks/{id} [get]
 // @Param 		 id path int true "Task ID"
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"
@@ -384,7 +386,7 @@ func (h *StaffManagementHandler) GetTaskById(c *gin.Context) {
 // @Tags         StaffManagement
 // @Accept 		 json
 // @Produce      json
-// @Router       /api/staff_management/tasks/{id} [delete]
+// @Router       /api/staff-management/tasks/{id} [delete]
 // @Param 		 id path int true "Task ID"
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
 // @param Authorization header string true "User Authorization"

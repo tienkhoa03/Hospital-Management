@@ -23,6 +23,12 @@ func (f *MedicalRecordFilter) ApplyFilter(db *gorm.DB) *gorm.DB {
 	if f.CreatedBefore != nil {
 		db = db.Where("created_at <= ?", f.CreatedBefore)
 	}
+	if f.SortBy == "beginTime" {
+		f.SortBy = "begin_time"
+	}
+	if f.SortBy == "createdAt" {
+		f.SortBy = "created_at"
+	}
 	db = db.Order(fmt.Sprintf("%s %s", f.SortBy, f.Order))
 	offset := (f.Page - 1) * f.Limit
 	db = db.Offset(offset).Limit(f.Limit)
