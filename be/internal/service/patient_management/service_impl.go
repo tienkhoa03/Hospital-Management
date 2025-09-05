@@ -21,7 +21,6 @@ import (
 	userRoleRepository "BE_Hospital_Management/internal/repository/user_role"
 	"BE_Hospital_Management/pkg/utils"
 	"errors"
-
 	"gorm.io/gorm"
 )
 
@@ -62,7 +61,7 @@ func NewPatientManagementService(userRepo userRepository.UserRepository, userRol
 }
 func (service *patientManagementService) CreateTreatmentPlan(doctorUID int64, treatmentPlan dto.TreatmentPlanRequest) (*dto.TreatmentPlanResponse, error) {
 	db := service.medicalRecordRepo.GetDB()
-	var response *dto.TreatmentPlanResponse
+	var response = &dto.TreatmentPlanResponse{}
 	err := db.Transaction(func(tx *gorm.DB) error {
 		staff, err := service.staffRepo.GetStaffByUserId(doctorUID)
 		if err != nil {

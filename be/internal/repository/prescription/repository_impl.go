@@ -20,7 +20,7 @@ func (r *PostgreSQLPrescriptionRepository) GetDB() *gorm.DB {
 
 func (r *PostgreSQLPrescriptionRepository) GetAllPrescription() ([]*entity.Prescription, error) {
 	var prescriptions = []*entity.Prescription{}
-	result := r.db.Model(&entity.Prescription{}).Find(&prescriptions)
+	result := r.db.Model(&entity.Prescription{}).Preload("Medicine").Find(&prescriptions)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -29,7 +29,7 @@ func (r *PostgreSQLPrescriptionRepository) GetAllPrescription() ([]*entity.Presc
 
 func (r *PostgreSQLPrescriptionRepository) GetPrescriptionById(prescriptionId int64) (*entity.Prescription, error) {
 	var prescription = entity.Prescription{}
-	result := r.db.Model(&entity.Prescription{}).Where("id = ?", prescriptionId).First(&prescription)
+	result := r.db.Model(&entity.Prescription{}).Preload("Medicine").Where("id = ?", prescriptionId).First(&prescription)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -38,7 +38,7 @@ func (r *PostgreSQLPrescriptionRepository) GetPrescriptionById(prescriptionId in
 
 func (r *PostgreSQLPrescriptionRepository) GetPrescriptionsByMedicalRecordId(medicalRecordId int64) ([]*entity.Prescription, error) {
 	var prescriptions []*entity.Prescription
-	result := r.db.Model(&entity.Prescription{}).Where("medical_record_id = ?", medicalRecordId).Find(&prescriptions)
+	result := r.db.Model(&entity.Prescription{}).Preload("Medicine").Where("medical_record_id = ?", medicalRecordId).Find(&prescriptions)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -47,7 +47,7 @@ func (r *PostgreSQLPrescriptionRepository) GetPrescriptionsByMedicalRecordId(med
 
 func (r *PostgreSQLPrescriptionRepository) GetPrescriptionsFromIds(prescriptionIds []int64) ([]*entity.Prescription, error) {
 	var prescriptions []*entity.Prescription
-	result := r.db.Model(&entity.Prescription{}).Where("id IN ?", prescriptionIds).Find(&prescriptions)
+	result := r.db.Model(&entity.Prescription{}).Preload("Medicine").Where("id IN ?", prescriptionIds).Find(&prescriptions)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -59,7 +59,12 @@ func (r *PostgreSQLPrescriptionRepository) CreatePrescription(tx *gorm.DB, presc
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return prescription, result.Error
+	var newPrescription = &entity.Prescription{}
+	result = tx.Model(&entity.Prescription{}).Preload("Medicine").Where("id = ?", prescription.Id).First(newPrescription)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return newPrescription, result.Error
 }
 
 func (r *PostgreSQLPrescriptionRepository) UpdatePrescription(tx *gorm.DB, prescription *entity.Prescription) (*entity.Prescription, error) {

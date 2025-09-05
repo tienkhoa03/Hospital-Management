@@ -85,11 +85,12 @@ func (h *AppointmentHandler) CreateAppointment(c *gin.Context) {
 }
 
 // Appointment godoc
-// @Summary      Update appointment time
-// @Description  Update appointment time
+// @Summary      Update appointment
+// @Description  Update appointment
 // @Tags         Appointment
 // @Accept 		json
 // @Produce      json
+// @Param		id	 	path		int		true	"Appointment id"
 // @Param		request	 	body		dto.UpdateAppointmentRequest		true	"Appointment time"
 // @param Authorization header string true "Authorization"
 // @Router       /api/appointments/{id} [PATCH]
@@ -106,6 +107,12 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
 		return
 	}
+	authUserRole := utils.GetAuthUserRole(c)
+	if authUserRole == nil {
+		log.Error("Happened error when updating appointment. Error: ", "Missing user role in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user role in context")
+		return
+	}
 	appointmentIdStr := c.Param("id")
 	appointmentId, err := strconv.ParseInt(appointmentIdStr, 10, 64)
 	if err != nil {
@@ -117,7 +124,7 @@ func (h *AppointmentHandler) UpdateAppointment(c *gin.Context) {
 		log.Error("Happened error when mapping request. Error: ", err)
 		pkg.PanicExeption(constant.InvalidRequest, "Invalid request format.")
 	}
-	newAppointment, err := h.service.UpdateAppointment(*authUserId, appointmentId, &request)
+	newAppointment, err := h.service.UpdateAppointment(*authUserId, *authUserRole, appointmentId, &request)
 	if err != nil {
 		log.Error("Happened error when updating appointment. Error: ", err)
 		switch {
@@ -240,14 +247,14 @@ func (h *AppointmentHandler) GetAvailableSlots(c *gin.Context) {
 }
 
 // Appointment godoc
-// @Summary      Get available slots of doctor
-// @Description  Get available slots of doctor
+// @Summary      Check if slot is available
+// @Description  Check if slot is available
 // @Tags         Appointment
 // @Accept 		json
 // @Produce      json
 // @Param		doctorUID	 	query		int     true  "Doctor ID"
-// @Param		beginTime	 	query		string     true  "Begin Time (format: 2006-01-02 15:04)"
-// @Param		finishTime	 	query		string     true  "Finish Time (format: 2006-01-02 15:04)"
+// @Param		beginTime	 	query		string     true  "Begin Time"
+// @Param		finishTime	 	query		string     true  "Finish Time"
 // @param Authorization header string true "Authorization"
 // @Router       /api/appointments/availability/check [GET]
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
@@ -264,13 +271,13 @@ func (h *AppointmentHandler) CheckAvailableSlot(c *gin.Context) {
 		pkg.PanicExeption(constant.InvalidRequest, "Happened error when converting Id to int64")
 	}
 	beginTimeStr := c.Query("beginTime")
-	beginTime, err := time.Parse("2006-01-02 15:04", beginTimeStr)
+	beginTime, err := time.Parse(time.RFC3339, beginTimeStr)
 	if err != nil {
 		log.Error("Happened error when converting time string to time format. Error: ", err)
 		pkg.PanicExeption(constant.InvalidRequest, "Happened error when converting time string to time format")
 	}
 	finishTimeStr := c.Query("finishTime")
-	finishTime, err := time.Parse("2006-01-02 15:04", finishTimeStr)
+	finishTime, err := time.Parse(time.RFC3339, finishTimeStr)
 	if err != nil {
 		log.Error("Happened error when converting time string to time format. Error: ", err)
 		pkg.PanicExeption(constant.InvalidRequest, "Happened error when converting time string to time format")

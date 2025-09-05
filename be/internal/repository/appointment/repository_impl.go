@@ -103,7 +103,7 @@ func (r *PostgreSQLAppointmentRepository) UpdateAppointment(tx *gorm.DB, appoint
 		return nil, result.Error
 	}
 	var updatedAppointment = entity.Appointment{}
-	result = r.db.First(&updatedAppointment, appointment.Id)
+	result = tx.First(&updatedAppointment, appointment.Id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -113,6 +113,18 @@ func (r *PostgreSQLAppointmentRepository) UpdateAppointment(tx *gorm.DB, appoint
 func (r *PostgreSQLAppointmentRepository) ExistsOverlapAppointmentOfDoctor(doctorId int64, beginTime, endTime time.Time) (bool, error) {
 	var appointment entity.Appointment
 	err := r.db.Where("doctor_id = ?", doctorId).Where("finish_time > ? AND begin_time < ? AND status = ?", beginTime, endTime, constant.AppointmentStatusScheduled).Limit(1).Take(&appointment).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+func (r *PostgreSQLAppointmentRepository) ExistsOverlapAppointmentOfDoctorExcept(doctorId int64, beginTime, endTime time.Time, appointmentId int64) (bool, error) {
+	var appointment entity.Appointment
+	err := r.db.Where("doctor_id = ?", doctorId).Where("finish_time > ? AND begin_time < ? AND id <> ? AND status = ?", beginTime, endTime, appointmentId, constant.AppointmentStatusScheduled).Limit(1).Take(&appointment).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return false, nil

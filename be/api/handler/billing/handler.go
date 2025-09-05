@@ -28,6 +28,7 @@ func NewBillingHandler(service service.BillingService) *BillingHandler {
 // @Tags         Billing
 // @Accept 		json
 // @Produce      json
+// @Param        id   path      int  true  "Bill ID"
 // @param Authorization header string true "Authorization"
 // @Router       /api/bills/{id}/status [PATCH]
 // @Success      200   {object}  dto.ApiResponseSuccessStruct
@@ -65,8 +66,8 @@ func (h *BillingHandler) UpdateBillStatusPaid(c *gin.Context) {
 }
 
 // Billing godoc
-// @Summary      Get all bills of current user
-// @Description  Get all bills of current user (patient or cashing officer)
+// @Summary      Get all bills
+// @Description  Get all bills
 // @Tags         Billing
 // @Accept 		json
 // @Produce      json
@@ -85,13 +86,49 @@ func (h *BillingHandler) GetAllBills(c *gin.Context) {
 		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
 		return
 	}
+	bills, err := h.service.GetAllBills(*authUserId)
+	if err != nil {
+		log.Error("Happened error when getting bills. Error: ", err)
+		switch {
+		case errors.Is(err, service.ErrNotPermitted):
+			pkg.PanicExeption(constant.Unauthorized, err.Error())
+		case errors.Is(err, service.ErrUserNotFound):
+			pkg.PanicExeption(constant.DataNotFound, err.Error())
+		default:
+			pkg.PanicExeption(constant.UnknownError, "Happened error when getting bills.")
+		}
+	}
+	c.JSON(http.StatusOK, pkg.BuildResponseSuccess(constant.Success, bills))
+}
+
+// Billing godoc
+// @Summary      Get all bills of current user
+// @Description  Get all bills of current user (patient or cashing officer)
+// @Tags         Billing
+// @Accept 		json
+// @Produce      json
+// @param Authorization header string true "Authorization"
+// @Router       /api/bills/my [GET]
+// @Success      200   {object}  dto.ApiResponseSuccessStruct
+// @securityDefinitions.apiKey token
+// @in header
+// @name Authorization
+// @Security JWT
+func (h *BillingHandler) GetMyBills(c *gin.Context) {
+	defer pkg.PanicHandler(c)
+	authUserId := utils.GetAuthUserId(c)
+	if authUserId == nil {
+		log.Error("Happened error when getting bills. Error: ", "Missing user ID in context")
+		pkg.PanicExeption(constant.Unauthorized, "Missing user ID in context")
+		return
+	}
 	authUserRole := utils.GetAuthUserRole(c)
 	if authUserRole == nil {
 		log.Error("Happened error when getting getting bills. Error: ", "Missing user role in context")
 		pkg.PanicExeption(constant.Unauthorized, "Missing user role in context")
 		return
 	}
-	bills, err := h.service.GetAllBills(*authUserId, *authUserRole)
+	bills, err := h.service.GetAllBillsOfCurrentUser(*authUserId, *authUserRole)
 	if err != nil {
 		log.Error("Happened error when getting bills. Error: ", err)
 		switch {
@@ -112,6 +149,7 @@ func (h *BillingHandler) GetAllBills(c *gin.Context) {
 // @Tags         Billing
 // @Accept 		json
 // @Produce      json
+// @Param        id   path      int  true  "Bill ID"
 // @param Authorization header string true "Authorization"
 // @Router       /api/bills/{id} [GET]
 // @Success      200   {object}  dto.ApiResponseSuccessStruct

@@ -384,8 +384,13 @@ paths:
     patch:
       consumes:
       - application/json
-      description: Update appointment time
+      description: Update appointment
       parameters:
+      - description: Appointment id
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: Appointment time
         in: body
         name: request
@@ -406,7 +411,7 @@ paths:
             $ref: '#/definitions/dto.ApiResponseSuccessStruct'
       security:
       - JWT: []
-      summary: Update appointment time
+      summary: Update appointment
       tags:
       - Appointment
   /api/appointments/availability:
@@ -446,19 +451,19 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get available slots of doctor
+      description: Check if slot is available
       parameters:
       - description: Doctor ID
         in: query
         name: doctorUID
         required: true
         type: integer
-      - description: 'Begin Time (format: 2006-01-02 15:04)'
+      - description: Begin Time
         in: query
         name: beginTime
         required: true
         type: string
-      - description: 'Finish Time (format: 2006-01-02 15:04)'
+      - description: Finish Time
         in: query
         name: finishTime
         required: true
@@ -477,7 +482,7 @@ paths:
             $ref: '#/definitions/dto.ApiResponseSuccessStruct'
       security:
       - JWT: []
-      summary: Get available slots of doctor
+      summary: Check if slot is available
       tags:
       - Appointment
   /api/appointments/filter:
@@ -632,7 +637,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get all bills of current user (patient or cashing officer)
+      description: Get all bills
       parameters:
       - description: Authorization
         in: header
@@ -648,7 +653,7 @@ paths:
             $ref: '#/definitions/dto.ApiResponseSuccessStruct'
       security:
       - JWT: []
-      summary: Get all bills of current user
+      summary: Get all bills
       tags:
       - Billing
   /api/bills/{id}:
@@ -657,6 +662,11 @@ paths:
       - application/json
       description: Get bill by id
       parameters:
+      - description: Bill ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: Authorization
         in: header
         name: Authorization
@@ -680,6 +690,11 @@ paths:
       - application/json
       description: Update the status of a bill to "paid" by a cashing officer
       parameters:
+      - description: Bill ID
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: Authorization
         in: header
         name: Authorization
@@ -747,6 +762,29 @@ paths:
       security:
       - JWT: []
       summary: Get bills of current user with filter
+      tags:
+      - Billing
+  /api/bills/my:
+    get:
+      consumes:
+      - application/json
+      description: Get all bills of current user (patient or cashing officer)
+      parameters:
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ApiResponseSuccessStruct'
+      security:
+      - JWT: []
+      summary: Get all bills of current user
       tags:
       - Billing
   /api/cashing-officer/{uid}:

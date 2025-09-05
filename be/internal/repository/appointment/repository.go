@@ -22,6 +22,7 @@ type AppointmentRepository interface {
 	UpdateAppointment(tx *gorm.DB, appointment *entity.Appointment) (*entity.Appointment, error)
 	DeleteAppointmentById(tx *gorm.DB, appointmentId int64) error
 	ExistsOverlapAppointmentOfDoctor(doctorId int64, beginTime, endTime time.Time) (bool, error)
+	ExistsOverlapAppointmentOfDoctorExcept(doctorId int64, beginTime, endTime time.Time, appointmentId int64) (bool, error)
 	GetAppointmentsByPatientIdWithFilter(patientId int64, appointmentFilter *filter.AppointmentFilter) ([]*entity.Appointment, error)
 	GetAppointmentsByDoctorIdWithFilter(doctorId int64, appointmentFilter *filter.AppointmentFilter) ([]*entity.Appointment, error)
 }
