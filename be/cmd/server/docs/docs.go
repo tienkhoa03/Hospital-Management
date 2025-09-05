@@ -333,6 +333,48 @@ const docTemplate = `{
                     }
                 }
             },
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Delete appointment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Appointment"
+                ],
+                "summary": "Delete appointment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Appointment id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "security": [
                     {
@@ -739,6 +781,13 @@ const docTemplate = `{
                 "summary": "Update cashing officer profile",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "cashing officer UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "New information",
                         "name": "request",
                         "in": "body",
@@ -784,6 +833,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update doctor profile",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "doctor UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "New information",
                         "name": "request",
@@ -831,6 +887,13 @@ const docTemplate = `{
                 "summary": "Update manager profile",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "manager UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "New information",
                         "name": "request",
                         "in": "body",
@@ -876,6 +939,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update nurse profile",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "nurse UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "New information",
                         "name": "request",
@@ -1078,6 +1148,13 @@ const docTemplate = `{
                 "summary": "Update patient profile",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "patient UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "New information",
                         "name": "request",
                         "in": "body",
@@ -1089,6 +1166,43 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/staff-management/me/assigned-tasks": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get tasks assigned by current manager",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StaffManagement"
+                ],
+                "summary": "Get tasks assigned by current manager",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
                         "name": "Authorization",
                         "in": "header",
                         "required": true
@@ -1189,6 +1303,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/staff-management/me/tasks": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get tasks for current staff",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StaffManagement"
+                ],
+                "summary": "Get tasks for current staff",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
         "/api/staff-management/me/tasks/filter": {
             "get": {
                 "security": [
@@ -1274,219 +1425,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/staff-management/staffs/{uid}/tasks/filter": {
-            "get": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Get tasks assigned by current manager to a specific staff with filter",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "StaffManagement"
-                ],
-                "summary": "Get tasks assigned by current manager to a specific staff with filter",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "asc",
-                            "desc"
-                        ],
-                        "type": "string",
-                        "name": "order",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "beginTime",
-                            "createdAt"
-                        ],
-                        "type": "string",
-                        "name": "sortBy",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "scheduled",
-                            "completed",
-                            "canceled"
-                        ],
-                        "type": "string",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "timeFrom",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "timeTo",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/staff-management/tasks/{id}": {
-            "patch": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Update task by Id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "StaffManagement"
-                ],
-                "summary": "Update task by Id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Task ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Updated task information",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateTaskInfoRequest"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "User Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/staff_management/me/assigned-tasks": {
-            "get": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Get tasks assigned by current manager",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "StaffManagement"
-                ],
-                "summary": "Get tasks assigned by current manager",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/staff_management/me/tasks": {
-            "get": {
-                "security": [
-                    {
-                        "JWT": []
-                    }
-                ],
-                "description": "Get tasks for current staff",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "StaffManagement"
-                ],
-                "summary": "Get tasks for current staff",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User Authorization",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/staff_management/staffs/{uid}/tasks": {
+        "/api/staff-management/staffs/{uid}/tasks": {
             "get": {
                 "security": [
                     {
@@ -1581,7 +1520,92 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/staff_management/tasks/{id}": {
+        "/api/staff-management/staffs/{uid}/tasks/filter": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Get tasks assigned by current manager to a specific staff with filter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StaffManagement"
+                ],
+                "summary": "Get tasks assigned by current manager to a specific staff with filter",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "beginTime",
+                            "createdAt"
+                        ],
+                        "type": "string",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "scheduled",
+                            "completed",
+                            "canceled"
+                        ],
+                        "type": "string",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "timeFrom",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "timeTo",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/staff-management/tasks/{id}": {
             "get": {
                 "security": [
                     {
@@ -1606,6 +1630,99 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Delete task by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StaffManagement"
+                ],
+                "summary": "Delete task by Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Update task by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "StaffManagement"
+                ],
+                "summary": "Update task by Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Task ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated task information",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateTaskInfoRequest"
+                        }
                     },
                     {
                         "type": "string",
@@ -1664,6 +1781,50 @@ const docTemplate = `{
                 "responses": {
                     "201": {
                         "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/managers/{uid}": {
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Delete manager by user ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Delete manager by user ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "manager UID",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
                         }
@@ -2003,7 +2164,49 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Staff UID",
-                        "name": "id",
+                        "name": "uid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ApiResponseSuccessStruct"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Delete staff by user ID for manager",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Delete staff by user ID for manager",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "staff UID",
+                        "name": "uid",
                         "in": "path",
                         "required": true
                     },
@@ -2375,10 +2578,10 @@ const docTemplate = `{
                 "gender": {
                     "type": "string"
                 },
-                "phone_number": {
+                "name": {
                     "type": "string"
                 },
-                "refresh_token": {
+                "phone_number": {
                     "type": "string"
                 }
             }

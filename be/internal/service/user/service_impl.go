@@ -15,6 +15,7 @@ import (
 	userRoleRepository "BE_Hospital_Management/internal/repository/user_role"
 	"BE_Hospital_Management/pkg/utils"
 	"errors"
+
 	"gorm.io/gorm"
 )
 
@@ -462,7 +463,17 @@ func (service *userService) UpdateDoctorProfile(authUserId int64, doctorUID int6
 		}
 		return nil, err
 	}
-	if staff.ManageBy != authUserId {
+	manager, err := service.managerRepo.GetManagerByUserId(authUserId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	if manager.Status == constant.ManagerStatusInactive {
+		return nil, ErrNotPermitted
+	}
+	if staff.ManageBy != manager.Id {
 		return nil, ErrNotPermitted
 	}
 	updateStaff := &entity.Staff{
@@ -502,7 +513,17 @@ func (service *userService) UpdateNurseProfile(authUserId int64, nurseUID int64,
 		}
 		return nil, err
 	}
-	if staff.ManageBy != authUserId {
+	manager, err := service.managerRepo.GetManagerByUserId(authUserId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	if manager.Status == constant.ManagerStatusInactive {
+		return nil, ErrNotPermitted
+	}
+	if staff.ManageBy != manager.Id {
 		return nil, ErrNotPermitted
 	}
 	updateStaff := &entity.Staff{
@@ -541,7 +562,17 @@ func (service *userService) UpdateCashingOfficerProfile(authUserId int64, cashin
 		}
 		return nil, err
 	}
-	if staff.ManageBy != authUserId {
+	manager, err := service.managerRepo.GetManagerByUserId(authUserId)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	if manager.Status == constant.ManagerStatusInactive {
+		return nil, ErrNotPermitted
+	}
+	if staff.ManageBy != manager.Id {
 		return nil, ErrNotPermitted
 	}
 	updateStaff := &entity.Staff{

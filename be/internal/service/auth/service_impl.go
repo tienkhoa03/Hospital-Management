@@ -15,10 +15,11 @@ import (
 	userRoleRepository "BE_Hospital_Management/internal/repository/user_role"
 	"BE_Hospital_Management/pkg/utils"
 	"errors"
+	"time"
+
 	"github.com/jackc/pgx/v5/pgconn"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"time"
 )
 
 type authService struct {
@@ -152,7 +153,7 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 			if staffRole.RoleSlug == constant.RoleNurse && request.StaffInfo.NurseInfo == nil {
 				return ErrMissingStaffInfo
 			}
-			if request.StaffInfo.DoctorInfo != nil {
+			if staffRole.RoleSlug == constant.RoleDoctor {
 				doctor := entity.Doctor{
 					StaffId:              newStaff.Id,
 					Specialization:       request.StaffInfo.DoctorInfo.Specialization,
@@ -166,7 +167,7 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 					return err
 				}
 				response = utils.MapDoctorToUserInfoResponse(newUser, newStaff, newDoctor)
-			} else if request.StaffInfo.NurseInfo != nil {
+			} else if staffRole.RoleSlug == constant.RoleNurse {
 				nurse := entity.Nurse{
 					StaffId:              newStaff.Id,
 					NursingLicenseNumber: request.StaffInfo.NurseInfo.NursingLicenseNumber,

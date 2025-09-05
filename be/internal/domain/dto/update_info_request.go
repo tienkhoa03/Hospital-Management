@@ -3,7 +3,7 @@ package dto
 import "time"
 
 type UpdateUserRequest struct {
-	Name        string    `json:"refresh_token"`
+	Name        string    `json:"name"`
 	DateOfBirth time.Time `json:"date_of_birth"`
 	PhoneNumber string    `json:"phone_number"`
 	Address     string    `json:"address"`

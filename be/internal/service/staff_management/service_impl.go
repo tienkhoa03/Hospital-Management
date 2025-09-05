@@ -212,27 +212,43 @@ func (service *staffManagementService) GetTaskById(authUserId int64, authUserRol
 		}
 		return nil, err
 	}
-	manager, err := service.managerRepo.GetManagerByUserId(authUserId)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrUserNotFound
-		}
-		return nil, err
-	}
-	staff, err := service.staffRepo.GetStaffByUserId(authUserId)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrUserNotFound
-		}
-		return nil, err
-	}
+	var manager *entity.Manager
+	var staff *entity.Staff
 	if authUserRole == constant.RoleManager {
+		manager, err = service.managerRepo.GetManagerByUserId(authUserId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
 		if task.AssignerId != manager.Id {
 			return nil, ErrNotPermitted
 		}
+		staff, err = service.staffRepo.GetStaffById(task.StaffId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
 	} else {
+		staff, err = service.staffRepo.GetStaffByUserId(authUserId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
+		}
 		if task.StaffId != staff.Id {
 			return nil, ErrNotPermitted
+		}
+		manager, err = service.managerRepo.GetManagerById(task.AssignerId)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, ErrUserNotFound
+			}
+			return nil, err
 		}
 	}
 	response := utils.MapToTaskResponse(task, staff.UserId, manager.UserId)
@@ -373,6 +389,7 @@ func (service *staffManagementService) UpdateTaskById(authUserId int64, taskId i
 			return ErrNotPermitted
 		}
 		task := &entity.Task{
+			Id:          taskId,
 			StaffId:     staff.Id,
 			AssignerId:  manager.Id,
 			Title:       task.Title,
