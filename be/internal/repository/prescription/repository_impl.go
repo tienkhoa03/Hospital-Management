@@ -64,7 +64,7 @@ func (r *PostgreSQLPrescriptionRepository) CreatePrescription(tx *gorm.DB, presc
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return newPrescription, result.Error
+	return newPrescription, nil
 }
 
 func (r *PostgreSQLPrescriptionRepository) UpdatePrescription(tx *gorm.DB, prescription *entity.Prescription) (*entity.Prescription, error) {

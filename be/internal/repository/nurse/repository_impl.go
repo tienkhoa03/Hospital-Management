@@ -59,7 +59,7 @@ func (r *PostgreSQLNurseRepository) CreateNurse(tx *gorm.DB, nurse *entity.Nurse
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return nurse, result.Error
+	return nurse, nil
 }
 
 func (r *PostgreSQLNurseRepository) UpdateNurse(tx *gorm.DB, nurse *entity.Nurse) (*entity.Nurse, error) {

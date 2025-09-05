@@ -69,7 +69,7 @@ func (r *PostgreSQLMedicalRecordRepository) CreateMedicalRecord(tx *gorm.DB, med
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return medicalRecord, result.Error
+	return medicalRecord, nil
 }
 
 func (r *PostgreSQLMedicalRecordRepository) UpdateMedicalRecord(tx *gorm.DB, medicalRecord *entity.MedicalRecord) (*entity.MedicalRecord, error) {

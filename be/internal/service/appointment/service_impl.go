@@ -89,6 +89,9 @@ func (service *appointmentService) CreateAppointment(authUserId int64, authUserR
 				return ErrUserNotFound
 			}
 		}
+		if staff.Status != constant.StaffStatusWorking {
+			return ErrDoctorNotWorking
+		}
 		existsOverlapTask, err := service.taskRepo.ExistsOverlapTaskOfStaff(staff.Id, appointmentRequest.BeginTime, appointmentRequest.FinishTime)
 		if err != nil {
 			return err
@@ -116,6 +119,9 @@ func (service *appointmentService) CreateAppointment(authUserId int64, authUserR
 				return ErrUserNotFound
 			}
 			return err
+		}
+		if patient.Status == constant.PatientStatusInactive {
+			return ErrUserNotFound
 		}
 		appointment := &entity.Appointment{
 			PatientId:  patient.Id,
@@ -157,6 +163,9 @@ func (service *appointmentService) UpdateAppointment(authUserId int64, authUserR
 				}
 				return err
 			}
+			if patient.Status == constant.PatientStatusInactive {
+				return ErrUserNotFound
+			}
 			if appointment.PatientId != patient.Id {
 				return ErrNotPermitted
 			}
@@ -170,6 +179,9 @@ func (service *appointmentService) UpdateAppointment(authUserId int64, authUserR
 					return ErrUserNotFound
 				}
 				return err
+			}
+			if staff.Status == constant.StaffStatusInactive {
+				return ErrUserNotFound
 			}
 			doctor, err := service.doctorRepo.GetDoctorByStaffId(staff.Id)
 			if err != nil {
@@ -313,9 +325,14 @@ func (service *appointmentService) DeleteAppointment(requestorUID int64, request
 			if appointmentPatient.UserId != requestorUID {
 				return ErrNotPermitted
 			}
-
+			if appointmentPatient.Status == constant.PatientStatusInactive {
+				return ErrNotPermitted
+			}
 		} else if requestorRole == constant.RoleDoctor {
 			if appointmentStaff.UserId != requestorUID {
+				return ErrNotPermitted
+			}
+			if appointmentStaff.Status == constant.StaffStatusInactive {
 				return ErrNotPermitted
 			}
 		} else {
@@ -388,6 +405,9 @@ func (service *appointmentService) CheckAvailableSlot(doctorUID int64, beginTime
 			return false, ErrUserNotFound
 		}
 		return false, err
+	}
+	if staff.Status != constant.StaffStatusWorking {
+		return false, ErrDoctorNotWorking
 	}
 	doctor, err := service.doctorRepo.GetDoctorByStaffId(staff.Id)
 	if err != nil {

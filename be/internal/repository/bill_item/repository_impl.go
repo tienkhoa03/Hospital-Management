@@ -59,7 +59,7 @@ func (r *PostgreSQLBillItemRepository) CreateBillItem(tx *gorm.DB, billItem *ent
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return billItem, result.Error
+	return billItem, nil
 }
 
 func (r *PostgreSQLBillItemRepository) UpdateBillItem(tx *gorm.DB, billItem *entity.BillItem) (*entity.BillItem, error) {

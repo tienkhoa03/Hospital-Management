@@ -87,7 +87,7 @@ func (r *PostgreSQLPatientRepository) CreatePatient(tx *gorm.DB, patient *entity
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return patient, result.Error
+	return patient, nil
 }
 
 func (r *PostgreSQLPatientRepository) DeletePatientByUserId(tx *gorm.DB, patientUID int64) error {

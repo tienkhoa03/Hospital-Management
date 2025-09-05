@@ -59,7 +59,7 @@ func (r *PostgreSQLDoctorRepository) CreateDoctor(tx *gorm.DB, doctor *entity.Do
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return doctor, result.Error
+	return doctor, nil
 }
 
 func (r *PostgreSQLDoctorRepository) UpdateDoctor(tx *gorm.DB, doctor *entity.Doctor) (*entity.Doctor, error) {

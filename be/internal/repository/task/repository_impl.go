@@ -80,7 +80,7 @@ func (r *PostgreSQLTaskRepository) CreateTask(tx *gorm.DB, task *entity.Task) (*
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return task, result.Error
+	return task, nil
 }
 
 func (r *PostgreSQLTaskRepository) UpdateTask(tx *gorm.DB, task *entity.Task) (*entity.Task, error) {

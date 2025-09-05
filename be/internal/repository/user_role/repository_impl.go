@@ -67,7 +67,7 @@ func (r *PostgreSQLUserRoleRepository) CreateUserRole(tx *gorm.DB, userRole *ent
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return userRole, result.Error
+	return userRole, nil
 }
 
 func (r *PostgreSQLUserRoleRepository) DeleteUserRoleById(tx *gorm.DB, userRoleId int64) error {

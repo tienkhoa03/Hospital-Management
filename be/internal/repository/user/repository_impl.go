@@ -68,7 +68,7 @@ func (r *PostgreSQLUserRepository) CreateUser(tx *gorm.DB, user *entity.User) (*
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return user, result.Error
+	return user, nil
 }
 
 func (r *PostgreSQLUserRepository) DeleteUserById(tx *gorm.DB, userId int64) error {

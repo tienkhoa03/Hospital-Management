@@ -77,7 +77,7 @@ func (r *PostgreSQLStaffRepository) CreateStaff(tx *gorm.DB, staff *entity.Staff
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return staff, result.Error
+	return staff, nil
 }
 
 func (r *PostgreSQLStaffRepository) DeleteStaffByUserId(tx *gorm.DB, staffUID int64) error {

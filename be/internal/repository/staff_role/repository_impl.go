@@ -67,7 +67,7 @@ func (r *PostgreSQLStaffRoleRepository) CreateStaffRole(tx *gorm.DB, staffRole *
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return staffRole, result.Error
+	return staffRole, nil
 }
 
 func (r *PostgreSQLStaffRoleRepository) DeleteStaffRoleById(tx *gorm.DB, staffRoleId int64) error {

@@ -7,6 +7,7 @@ The systeam supports the following functionalities:
 -	Appointment scheduling: allow patients to book, reschedule, and cancel appointments with doctors, update appointment status and manage doctor availability.
 -	Billing: handle patient billing.
 -	Staff management: Manage doctor information, scheduling, and assigning tasks.
+
      Note: “Tasks” are internal work for the doctors, tasks are not appointment.
      For simplicity, all doctors are assume to work from 7 – 11 am and 13 – 17 pm. Appointments last 15 minutes each and be scheduled at even 15-minute intervals within an hour: 0–15 minutes, 15–30 minutes, 30–45 minutes, or 45–60 minutes.
 ---
@@ -21,14 +22,16 @@ Patient:
 -	As a patient, I need to cancel my appointments.
 -	As a patient, I need to view doctor’s availability.
 -	As a patient, I need to view my appointments.
-     Doctors:
+
+Doctors:
 -	As a doctor, I need to update my account’s information.
 -	As a doctor, I need to view my appointments.
 -	As a doctor, I need to cancel an appointment with my patient.
 -	As a doctor, I need to generate a treatment plan invoice.
      Cashing officer:
 -	As a billing officer, I need to change the status of a bill from unpaid to paid.
-     Manager:
+     
+Manager:
 -	As a manager, I need to register a new account for a doctor.
 -	As a manager, I need to update the doctor account’s information.
 -	As a manager, I need to delete an account of a doctor.

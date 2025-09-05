@@ -59,7 +59,7 @@ func (r *PostgreSQLManagerRepository) CreateManager(tx *gorm.DB, manager *entity
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return manager, result.Error
+	return manager, nil
 }
 
 func (r *PostgreSQLManagerRepository) DeleteManagerByUserId(tx *gorm.DB, managerUID int64) error {

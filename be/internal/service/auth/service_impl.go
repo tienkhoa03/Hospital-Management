@@ -180,6 +180,8 @@ func (service *authService) RegisterUser(authUserId *int64, authUserRole *string
 					return err
 				}
 				response = utils.MapNurseToUserInfoResponse(newUser, newStaff, newNurse)
+			} else if staffRole.RoleSlug == constant.RoleCashingOfficer {
+				response = utils.MapCashingOfficerToUserInfoResponse(newUser, newStaff)
 			}
 		} else if userRole.RoleSlug == constant.RoleManager {
 			if authUserId == nil || authUserRole == nil {
@@ -222,6 +224,9 @@ func (service *authService) Login(email, password string) (string, string, error
 	if err != nil {
 		return "", "", ErrInvalidLoginRequest
 	}
+	if user.IsDeleted {
+		return "", "", ErrInvalidLoginRequest
+	}
 	accessTokenExpiredTime := time.Now().Add(utils.AccessTokenExpiredTime)
 	userRole := user.Role
 	authUserRole := userRole.RoleSlug
@@ -229,6 +234,9 @@ func (service *authService) Login(email, password string) (string, string, error
 		staff, err := service.staffRepo.GetStaffByUserId(user.Id)
 		if err != nil {
 			return "", "", err
+		}
+		if staff.Status == constant.StaffStatusInactive {
+			return "", "", ErrNotPermitted
 		}
 		staffRole, err := service.staffRoleRepo.GetStaffRoleById(staff.RoleId)
 		if err != nil {

@@ -89,7 +89,7 @@ func (r *PostgreSQLAppointmentRepository) CreateAppointment(tx *gorm.DB, appoint
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	return appointment, result.Error
+	return appointment, nil
 }
 
 func (r *PostgreSQLAppointmentRepository) DeleteAppointmentById(tx *gorm.DB, appointmentId int64) error {
